@@ -1,11 +1,11 @@
-function dSIR = SIRS(t,SIR, alpha, beta, gamma, delta, epsilon, contact)
-    SIR=SIR(1:end-1);
+function dSIR = SIRS(t,SIR, alpha, beta, gamma, delta, epsilon, contact, immunity)
+    SIR=SIR(1:end);
     n=size(contact,1);
     N=sum(SIR);
     S=SIR(1);
     I=SIR(2:n+1)';
     R=SIR(n+2:end)';
-      
+    immunity=ones(size(immunity))-immunity;
     %initialize rates
     dSdt = 0;
     dIdt(1:n) = 0;
@@ -37,7 +37,7 @@ function dSIR = SIRS(t,SIR, alpha, beta, gamma, delta, epsilon, contact)
     newI=0;
     
     %Diff eqs
-    dSdt = -(sum(alpha .* S.*I/N)) + (gamma * sum(R));
+    dSdt = -(sum(immunity .* alpha .* S.*I/N)) + (gamma * sum(R));
     
     for i=1:n
         current_I=I(i);
@@ -51,11 +51,10 @@ function dSIR = SIRS(t,SIR, alpha, beta, gamma, delta, epsilon, contact)
 %         nbor_to_mutate_to=randsample(1:length(contact(:,i)),1,true,contact(:,i));
 %         dIdt(nbor_to_mutate_to)= dIdt(nbor_to_mutate_to) + mutate * alpha*S*I(i)/N;
         %%%%%dIdt(i)= alpha*S*I(i)/N - beta*I(i)+ (sum((NBOR(i,:).*I))) + (sum(alpha * DELTA(i,:) .* R.*I(i) /N)); 
-        dIdt(i)= alpha*S*I(i)/N - beta*I(i)+ (sum((NBOR(i,:).*I))) - (sum(NBOR(i,:).*I(i))) + (sum(alpha * DELTA(i,:) .* R.*I(i) /N)); 
-        newI =newI + alpha*S*I(i)/N + (sum((NBOR(i,:).*I))) + (sum(alpha * DELTA(i,:) .* R.*I(i) /N)); 
-        newI =newI+dIdt(i);
-        dRdt(i)= (beta * I(i)) - (gamma * R(i)) - (alpha *R(i)* sum(DELTA(i,:).*I/N));
+        dIdt(i)= immunity(i) * alpha*S*I(i)/N - beta*I(i)+ (sum((NBOR(i,:).*I))) - (sum(NBOR(i,:).*I(i))) + (sum(alpha * DELTA(i,:) .* immunity(i) .* R.*I(i) /N)); 
+        
+        dRdt(i)= (beta * I(i)) - (gamma * R(i)) - ( alpha *R(i)* sum(DELTA(i,:).*I .* immunity/N ));
     end
     
-    dSIR=[dSdt, dIdt, dRdt, newI];
+    dSIR=[dSdt, dIdt, dRdt];
     dSIR=dSIR';
