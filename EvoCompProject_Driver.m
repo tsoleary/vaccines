@@ -14,14 +14,14 @@ thresh = 3; % set our threashold for what our weighted genome sums to
 genomeFlat = randsample([0 1], P*N, true, [probZero 1-probZero]);
 genomeMat = vec2mat(genomeFlat, N); % creates weighted genome matrix with N cols
 
-% run the normalizeation function (this goes in fitness function)
+% run the normalizeation function (this goes in Blake's fitness function)
 normGenome = NormalizeGenome(genomeMat, thresh); 
 
 
 
 
 % call fitness function and adj_list with anonoymous function 
-% NETWORK is still required
+% NETWORK is still required (something from Blake?)
 vaccineFitness = @(pop)(FitnessFunction(pop, adj_list_network));
 
 % set options for ga toolbox for bitstring
