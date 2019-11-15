@@ -4,8 +4,10 @@ function [supercritical_P]=SpreadingFitnessFcn(adjacency_mat, vaccine_vector, va
     % vaccine_vector     : length N, 0 if not vaccinated, 1 if vaccinated
     % vaccine_p          : from 0 to 1,   1:= transmission->0, 
     %                                   0.5:= transmission->1/2.
-    % epidemic threshold : from 0 to 1, should be 0.5 (or 1/[transmission rate of
+    % (epidemic) threshold : from 0 to 1, should be 0.5 (or 1/[transmission rate of
     %                      some disease]).
+    % transcendence : from 0 to 10+, try 1 to 10 to start. Higher= wider spread of immunity, lower=more localized.
+
 
     % # nodes
     N=size(adjacency_mat,1);
