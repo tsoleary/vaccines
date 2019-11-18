@@ -1,13 +1,9 @@
-function [supercritical_P]=SpreadingFitnessFcn(adjacency_mat, vaccine_vector, vaccine_p, threshold, transcendence)
+function [supercritical_P]=SpreadingFitnessFcn(adjacency_mat, vaccine_vector, threshold, transcendence)
     % PARAMETERS
     % adjacency_mat      : adjmat of the genotype network
-    % vaccine_vector     : length N, 0 if not vaccinated, 1 if vaccinated
-    % vaccine_p          : from 0 to 1,   1:= transmission->0, 
-    %                                   0.5:= transmission->1/2.
-    % (epidemic) threshold : from 0 to 1, should be 0.5 (or 1/[transmission rate of
+    % vaccine_vector     : length N= # strains, in [0 1]. 0 if nobody is vaccinated, 1 if fully vaccinated
+    % epidemic threshold : from 0 to 1, should be ~0.5 (or 1/[transmission rate of
     %                      some disease]).
-    % transcendence : from 0 to 10+, try 1 to 10 to start. Higher= wider spread of immunity, lower=more localized.
-
 
     % # nodes
     N=size(adjacency_mat,1);
@@ -19,7 +15,11 @@ function [supercritical_P]=SpreadingFitnessFcn(adjacency_mat, vaccine_vector, va
     D=distances(graph(adjacency_mat));
 
     %compute reduction in betas due to transcendence across all nodes
-    transcending_immunity= 1- vaccine_p * exp(-D(find(vaccine_vector),:)/transcendence)';
+    transcending_immunity= 1- exp(-D(find(vaccine_vector),:)/transcendence)';
+    
+    %weight effects by vaccine strength (from 0 to 1 for each vaccine
+    % strain).
+    transcending_immunity= 1- vaccine_vector(find(vaccine_vector)) .* (1-transcending_immunity);
     
     %take product for overlapping effects of multiple vaccination strains
     W=prod(transcending_immunity,2)';
@@ -27,4 +27,5 @@ function [supercritical_P]=SpreadingFitnessFcn(adjacency_mat, vaccine_vector, va
     % THE FITNESS:
     %find proportion of supercritical strains: minimize this proportion
     supercritical_P=(sum(W>threshold))/N;
+    
     
