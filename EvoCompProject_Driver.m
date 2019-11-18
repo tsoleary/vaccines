@@ -1,53 +1,55 @@
 % Evolutionary Computation
 % Project Driver
-% 10, November 2019
+% 18, November 2019
 % Blake Williams, Thomas O'Leary and Alex Burnham
 
+%build network
+rng(9)
+n=200;
+A = rand(n)>.985;
+A = triu(A) + triu(A,1)';
+A = A - diag(diag(A));
+G=graph(A);
+[bin binsize]=conncomp(G);
+idx = binsize(bin) == max(binsize);
+GC = subgraph(G, idx);
+n=GC.numnodes;
+adj_mat_network=full(adjacency(GC)); %%
+figure; plot(GC)
+%%
 % Starting parameters:
+N=n;
+P = 100;
+global V
+V = 3; % set our threashold for what our weighted genome sums to
 
-adj_mat_network=A; %%
-
-P = 10;
-N = 100;
-mutProb = 1/N; % probabilty of mutation
+mutProb = 1/V; % probabilty of mutation
 probZero = 0.9; % probability allele is 0
-thresh = 3; % set our threashold for what our weighted genome sums to
+
 threshold = .5;
-transcendence = 2;
+transcendence = 1;
 
 % create weighted binary genome
-genomeFlat = randsample([0 1], P*N, true, [probZero 1-probZero]);
-genomeMat = vec2mat(genomeFlat, N); % creates weighted genome matrix with N cols
-
-% run the normalizeation function (this goes in Blake's fitness function)
-%normGenome = NormalizeGenome(genomeMat, thresh); 
-
-
-
-
-% call fitness function and adj_list with anonoymous function 
-% NETWORK is still required (something from Blake?)
-%vaccineFitness = @(pop)(SpreadingFitnessFcn(pop, adj_mat_network, threshold, transcendence ));
- 
-
+genomeMat=zeros(P,V);
+for i=1:P
+    genomeMat(i,:)=randsample(1:N,V);
+end
 
 % set options for ga toolbox for bitstring
 vaccineOpts = gaoptimset(...
-    'PopulationType', 'bitstring', ...
+    'PopulationType', 'doubleVector', ...
     'InitialPopulation', genomeMat, ...
+    'PopulationSize',P,...
     'CrossoverFcn', @crossoversinglepoint, ...
-    'CrossoverFraction', 0.2, ...
+    'CrossoverFraction', 0.1, ...
     'SelectionFcn',{@selectiontournament,2}, ...
     'Vectorized','on',...
-    'Generations', 500, ...
+    'Generations', 100, ...
     'FitnessLimit', 0, ...
-    'MutationFcn', {@mutationuniform, mutProb});
-%s{@weightedMutation...
-                   %  'mutatinRate',mutProb,...
-                   %  'weight', probZero}
-    
+    'MutationFcn', {@randomResetMutationFcn, mutProb},...
+    'PlotFcn',{@gaplotbestf});
+
 
 % run GA (fitnessFunction, genomeLength, passOptions)
-%[x, fval] = ga(vaccineFitness, N, vaccineOpts);
+[x,fval] = ga(@(x) SpreadingFitnessFcn(x, adj_mat_network, threshold, transcendence), V, vaccineOpts);
 
-[x,fval] = ga(@SpreadingFitnessFcn, N, vaccineOpts);
