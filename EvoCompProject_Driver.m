@@ -6,7 +6,7 @@
 %build network
 rng(9)
 n=200;
-A = rand(n)>.98;
+A = rand(n)>.97;
 A = triu(A) + triu(A,1)';
 A = A - diag(diag(A));
 G=graph(A);
@@ -20,7 +20,11 @@ figure; plot(GC)
 
 % Starting parameters:
 N=n;
+<<<<<<< HEAD
 P = 100;
+=======
+P = 200;
+>>>>>>> c76c9b0715af0da3bf2b4d50bddc3a28f8f4429b
 global V
 V = 4; % # vaccines
 
@@ -51,5 +55,5 @@ vaccineOpts = gaoptimset(...
 
 
 % run GA (fitnessFunction, genomeLength, passOptions)
-[x,fval] = ga(@(x) SpreadingFitnessFcn(x, adj_mat_network, threshold, transcendence), V, vaccineOpts);
+[x,fval] = ga(@(x) SpreadingFitnessFcnCompSize(x, adj_mat_network, threshold, transcendence), V, vaccineOpts);
 
