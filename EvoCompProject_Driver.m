@@ -10,23 +10,24 @@ A = rand(n)>.98;
 A = triu(A) + triu(A,1)';
 A = A - diag(diag(A));
 G=graph(A);
-[bin binsize]=conncomp(G);
+[bin, binsize]=conncomp(G);
 idx = binsize(bin) == max(binsize);
 GC = subgraph(G, idx);
 n=GC.numnodes;
 adj_mat_network=full(adjacency(GC)); %%
 figure; plot(GC)
 %%
+
 % Starting parameters:
 N=n;
-P = 50;
+P = 100;
 global V
 V = 4; % # vaccines
 
 mutProb = 1/V; % probabilty of mutation
 
-threshold = .1;
-transcendence = 5;
+threshold = .5;
+transcendence = 2;
 
 % create weighted binary genome
 genomeMat=zeros(P,V);
