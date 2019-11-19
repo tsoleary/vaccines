@@ -6,7 +6,7 @@
 %build network
 rng(9)
 n=200;
-A = rand(n)>.98;
+A = rand(n)>.97;
 A = triu(A) + triu(A,1)';
 A = A - diag(diag(A));
 G=graph(A);
@@ -19,14 +19,14 @@ figure; plot(GC)
 %%
 % Starting parameters:
 N=n;
-P = 50;
+P = 200;
 global V
 V = 4; % # vaccines
 
 mutProb = 1/V; % probabilty of mutation
 
-threshold = .1;
-transcendence = 5;
+threshold = .5;
+transcendence = 2;
 
 % create weighted binary genome
 genomeMat=zeros(P,V);
@@ -50,5 +50,5 @@ vaccineOpts = gaoptimset(...
 
 
 % run GA (fitnessFunction, genomeLength, passOptions)
-[x,fval] = ga(@(x) SpreadingFitnessFcn(x, adj_mat_network, threshold, transcendence), V, vaccineOpts);
+[x,fval] = ga(@(x) SpreadingFitnessFcnCompSize(x, adj_mat_network, threshold, transcendence), V, vaccineOpts);
 
