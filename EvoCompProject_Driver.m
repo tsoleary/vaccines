@@ -16,15 +16,13 @@ GC = subgraph(G, idx);
 n=GC.numnodes;
 adj_mat_network=full(adjacency(GC)); %%
 figure; plot(GC)
+
 %%
 
 % Starting parameters:
 N=n;
-<<<<<<< HEAD
-P = 100;
-=======
 P = 200;
->>>>>>> c76c9b0715af0da3bf2b4d50bddc3a28f8f4429b
+
 global V
 V = 4; % # vaccines
 
