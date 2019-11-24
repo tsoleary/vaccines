@@ -11,6 +11,7 @@
 
 -Play with transcendence values, slightly, as needed.
 
+-I experimented with a mutation function that would give a ~10% chance for a mutation to pick not randomly from all nodes, but pick from the neighboring nodes of the previous value/node/strain. I thought this would allow solutions to fine-tune themselves as they narrowed in, but I saw minimal change in final fitness/how it got there. If you're curious about this I can put it back in for you to play with. I tested it on the lattice/star/chain and an ER random graph to little effect, but not on the real ones since I didn't see justification for it (but maybe it would offer an improvement there).
 
 
 #### Original Proposal
