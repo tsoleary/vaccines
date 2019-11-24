@@ -1,6 +1,17 @@
 # Vaccines: Vaccination Strategies on Genotype Networks
 ### Evolutionary Computation Final Project
-#### Blake Williams, Alex Burnham, & Thomas O'Leary
+#### Alex Burnham, & Thomas O'Leary, Blake Williams
+
+#### NOTES FRIDAY 11/23/19
+-The framework is there, now its mostly finalizing parameters for 'good' runs, implementing multiple runs (restarts), and making figures.  The Driver's 'finished-ness' decreases as you get further into it.
+
+-Consider playing with the two fitness functions: one determines proportion of nodes 'covered', the other determines mean outbreak size by # nodes (calculates the expected compononent size for an outbreak at a given node). One targets more central strains, the other targets more bridge strains to break up the network.
+
+-Consider trying the '@selectionstochunif' function for selection in place of tournament. I haven't found a reason to use it though.
+
+-Play with transcendence values, slightly, as needed.
+
+
 
 #### Original Proposal
 The goal of this project is to determine strain-specific vaccination strategies for a multi-strain disease with an underlying genotype network. A specified number of strains (e.g. 3) will be selected for vaccination, from an underlying genotype network of strains, in a well-mixed population of persons to be infected. The notion is that vaccinating against certain nodes in a genotype network will exploit the benefits of strain-transcending immunity, reducing overall infections by protecting against similar strains. The goal is to evolve and identify the configurations of good vaccination implementations (good= low mean steady state infection counts), as well as the features of nodes found in the best solutions. 
