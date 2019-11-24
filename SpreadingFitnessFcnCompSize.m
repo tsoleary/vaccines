@@ -1,4 +1,5 @@
-function mean_compsize_P=SpreadingFitnessFcn(vaccine_pop, adjacency_mat, threshold, transcendence)
+function mean_compsize_P=SpreadingFitnessFcnCompSize(vaccine_pop, adjacency_mat, threshold, transcendence)
+    tic
     % PARAMETERS
     % adjacency_mat      : adjmat of the genotype network
     % vaccine_vector     : length N= # strains, in [0 1]. 0 if nobody is vaccinated, 1 if fully vaccinated
@@ -31,12 +32,12 @@ function mean_compsize_P=SpreadingFitnessFcn(vaccine_pop, adjacency_mat, thresho
 
         % THE FITNESS:
         %find proportion of supercritical strains: minimize this proportion
-        node_remove=find(W>threshold);
+        node_remove=find(W<threshold);
         G=graph(adjacency_mat);
         G=rmnode(G,node_remove);
         [~, binsize]=conncomp(G);
         mean_compsize_P(loop)=sum(binsize.^2)/(N^2);
         
     end
-
+    toc
     

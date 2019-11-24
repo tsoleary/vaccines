@@ -1,10 +1,11 @@
-function supercritical_P=SpreadingFitnessFcn(vaccine_pop, adjacency_mat, threshold, transcendence)
+function coverages=SpreadingFitnessFcn(vaccine_pop, adjacency_mat, threshold, transcendence)
+    tic
     % PARAMETERS
     % adjacency_mat      : adjmat of the genotype network
     % vaccine_vector     : length N= # strains, in [0 1]. 0 if nobody is vaccinated, 1 if fully vaccinated
     % epidemic threshold : from 0 to 1, should be ~0.5 (or 1/[transmission rate of
     %                      some disease]).
-    supercritical_P=zeros(1,size(vaccine_pop,1));
+    coverages=zeros(1,size(vaccine_pop,1));
     for loop=1:size(vaccine_pop,1)
         vaccine_vector=vaccine_pop(loop,:);
         % # nodes
@@ -31,8 +32,8 @@ function supercritical_P=SpreadingFitnessFcn(vaccine_pop, adjacency_mat, thresho
 
         % THE FITNESS:
         %find proportion of supercritical strains: minimize this proportion
-        supercritical_P(loop)=(sum(W>threshold))/N;
-        
+        node_remove=find(W<threshold);
+        coverages(loop)=1-length(node_remove)/length(W);
     end
-
+    toc
     
