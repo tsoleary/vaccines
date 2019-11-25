@@ -2,7 +2,33 @@
 ### Evolutionary Computation Final Project
 #### Alex Burnham, & Thomas O'Leary, Blake Williams
 
-#### NOTES FRIDAY 11/23/19
+#### NOTES MONDAY 11/25/19 (From the last meeting)
+For transcendence=1,2,5, etc
+	for each real network of size N
+		evolve GA x times 
+
+plot distribution of pct subcritical
+
+Figure 1: Diagram of fitness 
+
+Figure 2: Vaccinations in toy networks (verification/explanatory) 
+(a) Star
+(b) Chain
+(c) Lattice
+(d) Erdos Renyi
+Show 1 run and explain simple happenings
+
+Table 1:
+Parameter
+
+Figure 3: Vaccination coverage vs network size, for transcendence=1,2,3…
+
+Figure 4: Decay of coverage w/network growth (COOL), also w simulated nets
+
+comment on attempts w selection function, mutation function alt
+
+ 
+#### NOTES SATURDAY 11/23/19
 -The framework is there, now its mostly finalizing parameters for 'good' runs, implementing multiple runs (restarts), and making figures.  The Driver's 'finished-ness' decreases as you get further into it.
 
 -Consider playing with the two fitness functions: one determines proportion of nodes 'covered', the other determines mean outbreak size by # nodes (calculates the expected compononent size for an outbreak at a given node). One targets more central strains, the other targets more bridge strains to break up the network.
