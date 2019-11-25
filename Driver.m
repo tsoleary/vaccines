@@ -272,11 +272,11 @@ vaccineOpts = gaoptimset(...
 'MutationFcn', {@randomResetMutation, mutProb},...
 'PlotFcn',{@gaplotbestf});
 
-for transcendence=[1 1.5 2] % since we don't know what it is, try a few
+for transcendence=[2] % since we don't know what it is, try a few
     for i=length(flu_nets):-1:1 %for flu networks of size ~20 up to ~1000
 
         flu_net=flu_nets{i};
-        N = size(flu_net,1);
+        %N = size(flu_net,1);
         population=zeros(P,V);
         for j=1:P
             population(j,:)=randsample(1:N,V);
@@ -288,7 +288,7 @@ for transcendence=[1 1.5 2] % since we don't know what it is, try a few
         for run=1:num_GA_runs
 
             % run GA
-            [x,fval] = ga(@(y) SpreadingFitnessFcnCompSize(y, flu_net, threshold, transcendence), V, vaccineOpts);
+            [x, fval, exitFlag, Output] = ga(@(y) SpreadingFitnessFcnCompSize(y, flu_net, threshold, transcendence), V, vaccineOpts);
 
             Visualizer(x, flu_net, threshold, transcendence)
         end
@@ -304,6 +304,65 @@ end
 
 
 
+%% Example of our networks
+
+% Load saved figures
+one=hgload('real0.fig');
+two=hgload('real1.fig');
+three=hgload('real2.fig');
+four=hgload('real3.fig');
+five=hgload('real4.fig');
+six=hgload('real5.fig');
+seven=hgload('real7.fig');
+eight=hgload('real8.fig');
+nine=hgload('real9.fig');
+
+% Prepare subplots
+figure
+h(1)=subtightplot(3,3,1,[0.05,0.01], 0.075, 0.05);
+set(gca,'XColor', 'none','YColor','none')
+h(2)=subtightplot(3,3,2,[0.05,0.01], 0.075, 0.05);
+set(gca,'XColor', 'none','YColor','none')
+h(3)=subtightplot(3,3,3,[0.05,0.01], 0.075, 0.05);
+set(gca,'XColor', 'none','YColor','none')
+h(4)=subtightplot(3,3,4,[0.05,0.01]);
+set(gca,'XColor', 'none','YColor','none')
+h(5)=subtightplot(3,3,5,[0.05,0.01]);
+set(gca,'XColor', 'none','YColor','none')
+h(6)=subtightplot(3,3,6,[0.05,0.01]);
+set(gca,'XColor', 'none','YColor','none')
+h(7)=subtightplot(3,3,7,[0.05,0.01]);
+set(gca,'XColor', 'none','YColor','none')
+h(8)=subtightplot(3,3,8,[0.05,0.01]);
+set(gca,'XColor', 'none','YColor','none')
+h(9)=subtightplot(3,3,9,[0.05,0.01]);
+set(gca,'XColor', 'none','YColor','none')
+
+
+
+% Paste figures on the subplots
+copyobj(allchild(get(one,'CurrentAxes')),h(1));
+copyobj(allchild(get(two,'CurrentAxes')),h(2));
+copyobj(allchild(get(three,'CurrentAxes')),h(3));
+copyobj(allchild(get(four,'CurrentAxes')),h(4));
+copyobj(allchild(get(five,'CurrentAxes')),h(5));
+copyobj(allchild(get(six,'CurrentAxes')),h(6));
+copyobj(allchild(get(seven,'CurrentAxes')),h(7));
+copyobj(allchild(get(eight,'CurrentAxes')),h(8));
+copyobj(allchild(get(nine,'CurrentAxes')),h(9));
+
+% Add legends
+l(1)=title(h(1),'\fontsize{24}Star');
+l(2)=title(h(2),'\fontsize{24}Chain');
+l(3)=title(h(3),'\fontsize{24}Lattice');
+l(4)=title(h(4),'\fontsize{24}Erd?s?R�nyi');
+l(5)=title(h(5),'\fontsize{24}Star');
+l(6)=title(h(6),'\fontsize{24}Chain');
+l(7)=title(h(7),'\fontsize{24}Lattice');
+l(8)=title(h(8),'\fontsize{24}Erd?s?R�nyi');
+l(9)=title(h(9),'\fontsize{24}Erd?s?R�nyi');
+
+
 
 
 
@@ -312,6 +371,9 @@ end
 %TODO: this.
 %TODO: Blake provides network
 %TODO
+
+
+
 
 
 
