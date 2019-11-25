@@ -33,7 +33,7 @@ Toy_Solutions_Exp = {};
 N = 2; % number of reps
 ToyMat = zeros(N*(length(transcendence_list))*3, 4);
 
-
+counter=0; % intialize counter to index matrix
 
 % replication loop (run for N reps and store data)
 for sample=1:N
@@ -41,8 +41,6 @@ for sample=1:N
     % run for a couple values of transcendence (=[2 3] shows interesting behavior)
     % store best solutions for transcendence (each net within)
     best_solutions={};
-    %best_fit={};
-    %num_calls = {};
 
     for transcend_idx=1:length(transcendence_list)
 
@@ -66,8 +64,6 @@ for sample=1:N
         % loop through each toy network
         % store best solution for each toy network
         cur_best_solutions={};
-        %cur_best_fit={};
-        %cur_num_calls={};
 
         for i=1:length(toy_nets)
 
@@ -75,15 +71,16 @@ for sample=1:N
             A=toy_nets{i};
 
             % run GA
+            counter=counter+1; % counter to fill matrix
+            
             [x,fval,exitFlag, Output] = ga(@(x) SpreadingFitnessFcnCompSize(x, A, threshold, transcendence), V, vaccineOpts);
             cur_best_solutions{i}=x;
-            cur_best_fit{i}=fval;
-            cur_num_calls{i}=Output.funccount;
 
-            ToyMat(i,1) = fval;
-            ToyMat(i,2) = Output.funccount;
-            ToyMat(i,3) = i;
-            ToyMat(i,4) = transcend_idx;
+
+            ToyMat(counter,1) = fval;
+            ToyMat(counter,2) = Output.funccount;
+            ToyMat(counter,3) = i;
+            ToyMat(counter,4) = transcend_idx;
 
         end
 
@@ -98,13 +95,15 @@ for sample=1:N
     end
 
     Toy_Solutions_Exp{sample} = best_solutions;
-    %Toy_Fitness_Exp{sample} = best_fit;
-    %Toy_Calls_Exp{sample} = num_calls;
+
 end
 
-%     Alex: (i) run this N times (20ish) to get a distribution ofsolutions/time-to-best solution.
+%     Alex: (i) run this N times (20ish) to get a distribution ofsolutions/time-to-best solution (num calls).
 %     (ii) Compare this to a brute-force found optimal solution (~a few hrs
 %     brute force time for EACH net of size 100 choose 3
+
+% Toy Solutions is a Matrix wit four columns (fitness, # calls, trans value, network type
+% 1 2 and 3 (lattice, star, chain respectively))
 
 %% use best_solutions and best_fit in part 2d with ER for a big figure
 

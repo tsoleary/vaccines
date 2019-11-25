@@ -31,7 +31,8 @@ end
 % create main data structures
 Toy_Solutions_Exp = {};
 N = 2; % number of reps
-ToyMat = zeros(N*6,4);
+ToyMat = zeros(N*(length(transcendence_list))*3, 4);
+
 
 
 % replication loop (run for N reps and store data)
@@ -79,7 +80,10 @@ for sample=1:N
             cur_best_fit{i}=fval;
             cur_num_calls{i}=Output.funccount;
 
-            ToyMat((i+transcend_idx+sample),1) = fval;
+            ToyMat(i,1) = fval;
+            ToyMat(i,2) = Output.funccount;
+            ToyMat(i,3) = i;
+            ToyMat(i,4) = transcend_idx;
 
         end
 
@@ -104,6 +108,7 @@ end
 
 %% use best_solutions and best_fit in part 2d with ER for a big figure
 
+
 % Thomas plot the four best toy NWs (chain, lattice, star and er) in a 2 by
 % 2 panel -Alex
 
@@ -115,14 +120,14 @@ e=hgload('erExample.fig');
 
 % Prepare subplots
 figure
-h(1)=subplot(2,2,1);
-set(gca,'visible','off');
-h(2)=subplot(2,2,2);
-set(gca,'visible','off');
-h(3)=subplot(2,2,3);
-set(gca,'visible','off');
-h(4)=subplot(2,2,4);
-set(gca,'visible','off');
+h(1)=subtightplot(2,2,1,[0.05,0.01], 0.075, 0.05);
+set(gca,'XColor', 'none','YColor','none')
+h(2)=subtightplot(2,2,2,[0.05,0.01], 0.075, 0.05);
+set(gca,'XColor', 'none','YColor','none')
+h(3)=subtightplot(2,2,3,[0.05,0.01]);
+set(gca,'XColor', 'none','YColor','none')
+h(4)=subtightplot(2,2,4,[0.05,0.01]);
+set(gca,'XColor', 'none','YColor','none')
 
 % Paste figures on the subplots
 copyobj(allchild(get(s,'CurrentAxes')),h(1));
@@ -131,10 +136,10 @@ copyobj(allchild(get(l,'CurrentAxes')),h(3));
 copyobj(allchild(get(e,'CurrentAxes')),h(4));
 
 % Add legends
-l(1)=title(h(1),'Star');
-l(2)=title(h(2),'Chain');
-l(3)=title(h(3),'Lattice');
-l(4)=title(h(4),'Erd?s?R�nyi');
+l(1)=title(h(1),'\fontsize{36}Star');
+l(2)=title(h(2),'\fontsize{36}Chain');
+l(3)=title(h(3),'\fontsize{36}Lattice');
+l(4)=title(h(4),'\fontsize{36}Erd?s?R�nyi');
 
 
 
