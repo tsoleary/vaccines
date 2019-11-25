@@ -8,7 +8,7 @@ toy_nets = ToyNets(10,10); % makes x by y lattice, N=x*y for all networks
 rng('shuffle') %random number generator seeded constantly for now
 
 %initialize parameters
-P = 200; % GA population size
+P = 10; % GA population size (change to higher val during main run)
 N = size(toy_nets{1},1); % # nodes
 nGen=40; % GA generations, very small # needed in part 1
 global V 
@@ -26,83 +26,90 @@ for j=1:P
     population(j,:)=randsample(N,V);
 end
 
-% run for a couple values of transcendence (=[2 3] shows interesting behavior)
-% store best solutions for transcendence (each net within)
-best_solutions={};
-best_fit={};
-for transcend_idx=length(transcendence_list)
-    
-    %get current transcendence value
-    transcendence=transcendence_list(transcend_idx);
-    % set GA options
-    vaccineOpts = gaoptimset(...
-        'PopulationType', 'doubleVector', ...
-        'InitialPopulation', population, ...
-        'PopulationSize',P,...
-        'CrossoverFcn', @crossoversinglepoint, ...
-        'CrossoverFraction', 0.5, ...
-        'SelectionFcn',{@selectiontournament,2}, ...
-        'Vectorized','on',...
-        'Generations', nGen, ...
-        'FitnessLimit', 0, ...
-        'PlotFcn',{@gaplotbestf},...
-        'MutationFcn',{@randomResetMutation, mutProb});
-    % loop through each toy network
-    % store best solution for each toy network
-    cur_best_solutions={};
-    cur_best_fit={};
-    for i=1:length(toy_nets)
 
-        %get network and N
-        A=toy_nets{i};
+
+% create main data structures
+Toy_Solutions_Exp = {};
+N = 2; % number of reps
+ToyMat = zeros(N*(length(transcendence_list))*3, 4);
+
+
+
+% replication loop (run for N reps and store data)
+for sample=1:N
+
+    % run for a couple values of transcendence (=[2 3] shows interesting behavior)
+    % store best solutions for transcendence (each net within)
+    best_solutions={};
+    %best_fit={};
+    %num_calls = {};
+
+    for transcend_idx=1:length(transcendence_list)
+    
+        %get current transcendence value
+        transcendence=transcendence_list(transcend_idx);
         
-        % run GA 
-        [x,fval] = ga(@(x) SpreadingFitnessFcnCompSize(x, A, threshold, transcendence), V, vaccineOpts);
-        cur_best_solutions{i}=x;
-        cur_best_fit{i}=fval;
+        % set GA options
+        vaccineOpts = gaoptimset(...
+            'PopulationType', 'doubleVector', ...
+            'InitialPopulation', population, ...
+            'PopulationSize',P,...
+            'CrossoverFcn', @crossoversinglepoint, ...
+            'CrossoverFraction', 0.5, ...
+            'SelectionFcn',{@selectiontournament,2}, ...
+            'Vectorized','on',...
+            'Generations', nGen, ...
+            'FitnessLimit', 0, ...
+            'PlotFcn',{@gaplotbestf},...
+            'MutationFcn',{@randomResetMutation, mutProb});
+    
+        % loop through each toy network
+        % store best solution for each toy network
+        cur_best_solutions={};
+        %cur_best_fit={};
+        %cur_num_calls={};
+        
+        for i=1:length(toy_nets)
+
+            %get network and N
+            A=toy_nets{i};
+        
+            % run GA 
+            [x,fval,exitFlag, Output] = ga(@(x) SpreadingFitnessFcnCompSize(x, A, threshold, transcendence), V, vaccineOpts);
+            cur_best_solutions{i}=x;
+            cur_best_fit{i}=fval;
+            cur_num_calls{i}=Output.funccount;
+            
+            ToyMat(i,1) = fval;
+            ToyMat(i,2) = Output.funccount;
+            ToyMat(i,3) = i;
+            ToyMat(i,4) = transcend_idx;
+        
+        end
+    
+        best_solutions{transcend_idx}=cur_best_solutions;
+        %best_fit{transcend_idx}=cur_best_fit;
+        %num_calls{transcend_idx}=cur_num_calls; % added storage of num func calls - Alex
+    
+        %  look at results (commented out while working on data structures - Alex)
+        %for i=1:3
+        %    Visualizer(cur_best_solutions{i}, toy_nets{i}, threshold, transcendence)
+        %end
     end
     
-    best_solutions{transcend_idx}=cur_best_solutions;
-    best_fit{transcend_idx}=cur_best_fit;
-    
-    %  look at results
-    for i=1:3
-        Visualizer(cur_best_solutions{i}, toy_nets{i}, threshold, transcendence)
-    end
+    Toy_Solutions_Exp{sample} = best_solutions;
+    %Toy_Fitness_Exp{sample} = best_fit; 
+    %Toy_Calls_Exp{sample} = num_calls;
 end
 
-%TODO (i) run this X times (20ish) to get a distribution ofsolutions/time-to-best solution. 
+%     Alex: (i) run this N times (20ish) to get a distribution ofsolutions/time-to-best solution. 
 %     (ii) Compare this to a brute-force found optimal solution (~a few hrs
 %     brute force time for EACH net of size 100 choose 3
 
 %% use best_solutions and best_fit in part 2d with ER for a big figure
 
-% Load saved figures
-s=hgload('starExample.fig');
-c=hgload('chainExample.fig');
-l=hgload('latticeExample.fig');
-e=hgload('erExample.fig');
-
-% Prepare subplots
-figure
-h(1)=subplot(2,2,1);
-h(2)=subplot(2,2,2);
-h(3)=subplot(2,2,3);
-h(4)=subplot(2,2,4);
-
-% Paste figures on the subplots
-copyobj(allchild(get(s,'CurrentAxes')),h(1));
-copyobj(allchild(get(c,'CurrentAxes')),h(2));
-copyobj(allchild(get(l,'CurrentAxes')),h(3));
-copyobj(allchild(get(e,'CurrentAxes')),h(4));
-
-% Add legends
-l(1)=title(h(1),'LegendForFirstFigure');
-l(2)=title(h(2),'LegendForFirstFigure');
-l(3)=title(h(3),'LegendForFirstFigure');
-l(4)=title(h(4),'LegendForFirstFigure');
-
-
+% Thomas plot the four best toy NWs (chain, lattice, star and er) in a 2 by
+% 2 panel -Alex
 
 
 %% (1c) Figure 1: Diagram of fitness calculation
