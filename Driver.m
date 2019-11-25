@@ -85,10 +85,14 @@ e=hgload('erExample.fig');
 
 % Prepare subplots
 figure
-h(1)=subplot(2,2,1);
-h(2)=subplot(2,2,2);
-h(3)=subplot(2,2,3);
-h(4)=subplot(2,2,4);
+h(1)=subtightplot(2,2,1,[0.05,0.01], 0.075, 0.05);
+set(gca,'XColor', 'none','YColor','none')
+h(2)=subtightplot(2,2,2,[0.05,0.01], 0.075, 0.05);
+set(gca,'XColor', 'none','YColor','none')
+h(3)=subtightplot(2,2,3,[0.05,0.01]);
+set(gca,'XColor', 'none','YColor','none')
+h(4)=subtightplot(2,2,4,[0.05,0.01]);
+set(gca,'XColor', 'none','YColor','none')
 
 % Paste figures on the subplots
 copyobj(allchild(get(s,'CurrentAxes')),h(1));
@@ -97,12 +101,10 @@ copyobj(allchild(get(l,'CurrentAxes')),h(3));
 copyobj(allchild(get(e,'CurrentAxes')),h(4));
 
 % Add legends
-l(1)=title(h(1),'LegendForFirstFigure');
-l(2)=title(h(2),'LegendForFirstFigure');
-l(3)=title(h(3),'LegendForFirstFigure');
-l(4)=title(h(4),'LegendForFirstFigure');
-
-
+l(1)=title(h(1),'\fontsize{24}Star');
+l(2)=title(h(2),'\fontsize{24}Chain');
+l(3)=title(h(3),'\fontsize{24}Lattice');
+l(4)=title(h(4),'\fontsize{24}Erd?s?Rényi');
 
 
 %% (1c) Figure 1: Diagram of fitness calculation
