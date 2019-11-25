@@ -1,4 +1,4 @@
-%% PART 1: TOY NETWORKS 
+%% PART 1: TOY NETWORKS
 %% (1a) create toy networks: lattice, star, chain
 toy_nets = ToyNets(10,10); % makes x by y lattice, N=x*y for all networks
 
@@ -11,11 +11,11 @@ rng('shuffle') %random number generator seeded constantly for now
 P = 10; % GA population size (change to higher val during main run)
 N = size(toy_nets{1},1); % # nodes
 nGen=40; % GA generations, very small # needed in part 1
-global V 
+global V
 V = 3; % # vaccines
 mutProb = 1/V; % probabilty of mutation
 if V==1 % in case of 1 vaccine, set mutation=1/2 (not 1/1)
-    mutProb=0.5; 
+    mutProb=0.5;
 end
 threshold = .5; % from 0 to 1, kept 1/2.
 transcendence_list = [2 3];
@@ -45,10 +45,10 @@ for sample=1:N
     %num_calls = {};
 
     for transcend_idx=1:length(transcendence_list)
-    
+
         %get current transcendence value
         transcendence=transcendence_list(transcend_idx);
-        
+
         % set GA options
         vaccineOpts = gaoptimset(...
             'PopulationType', 'doubleVector', ...
@@ -62,54 +62,85 @@ for sample=1:N
             'FitnessLimit', 0, ...
             'PlotFcn',{@gaplotbestf},...
             'MutationFcn',{@randomResetMutation, mutProb});
-    
+
         % loop through each toy network
         % store best solution for each toy network
         cur_best_solutions={};
         %cur_best_fit={};
         %cur_num_calls={};
-        
+
         for i=1:length(toy_nets)
 
             %get network and N
             A=toy_nets{i};
-        
-            % run GA 
+
+            % run GA
             [x,fval,exitFlag, Output] = ga(@(x) SpreadingFitnessFcnCompSize(x, A, threshold, transcendence), V, vaccineOpts);
             cur_best_solutions{i}=x;
             cur_best_fit{i}=fval;
             cur_num_calls{i}=Output.funccount;
-            
+
             ToyMat(i,1) = fval;
             ToyMat(i,2) = Output.funccount;
             ToyMat(i,3) = i;
             ToyMat(i,4) = transcend_idx;
-        
+
         end
-    
+
         best_solutions{transcend_idx}=cur_best_solutions;
         %best_fit{transcend_idx}=cur_best_fit;
         %num_calls{transcend_idx}=cur_num_calls; % added storage of num func calls - Alex
-    
+
         %  look at results (commented out while working on data structures - Alex)
         %for i=1:3
         %    Visualizer(cur_best_solutions{i}, toy_nets{i}, threshold, transcendence)
         %end
     end
-    
+
     Toy_Solutions_Exp{sample} = best_solutions;
-    %Toy_Fitness_Exp{sample} = best_fit; 
+    %Toy_Fitness_Exp{sample} = best_fit;
     %Toy_Calls_Exp{sample} = num_calls;
 end
 
-%     Alex: (i) run this N times (20ish) to get a distribution ofsolutions/time-to-best solution. 
+%     Alex: (i) run this N times (20ish) to get a distribution ofsolutions/time-to-best solution.
 %     (ii) Compare this to a brute-force found optimal solution (~a few hrs
 %     brute force time for EACH net of size 100 choose 3
 
 %% use best_solutions and best_fit in part 2d with ER for a big figure
 
+
 % Thomas plot the four best toy NWs (chain, lattice, star and er) in a 2 by
 % 2 panel -Alex
+
+% Load saved figures
+s=hgload('starExample.fig');
+c=hgload('chainExample.fig');
+l=hgload('latticeExample.fig');
+e=hgload('erExample.fig');
+
+% Prepare subplots
+figure
+h(1)=subtightplot(2,2,1,[0.05,0.01], 0.075, 0.05);
+set(gca,'XColor', 'none','YColor','none')
+h(2)=subtightplot(2,2,2,[0.05,0.01], 0.075, 0.05);
+set(gca,'XColor', 'none','YColor','none')
+h(3)=subtightplot(2,2,3,[0.05,0.01]);
+set(gca,'XColor', 'none','YColor','none')
+h(4)=subtightplot(2,2,4,[0.05,0.01]);
+set(gca,'XColor', 'none','YColor','none')
+
+% Paste figures on the subplots
+copyobj(allchild(get(s,'CurrentAxes')),h(1));
+copyobj(allchild(get(c,'CurrentAxes')),h(2));
+copyobj(allchild(get(l,'CurrentAxes')),h(3));
+copyobj(allchild(get(e,'CurrentAxes')),h(4));
+
+% Add legends
+l(1)=title(h(1),'\fontsize{36}Star');
+l(2)=title(h(2),'\fontsize{36}Chain');
+l(3)=title(h(3),'\fontsize{36}Lattice');
+l(4)=title(h(4),'\fontsize{36}Erd?s?R�nyi');
+
 
 
 %% (1c) Figure 1: Diagram of fitness calculation
@@ -158,7 +189,7 @@ vaccineOpts = gaoptimset(...
     'MutationFcn', {@randomResetMutation, mutProb},...
     'PlotFcn',{@gaplotbestf});
 
-% run GA 
+% run GA
 [x,fval] = ga(@(x) SpreadingFitnessFcnCompSize(x, ER_G, threshold, transcendence), V, vaccineOpts);
 
 Visualizer(x, ER_G, threshold, transcendence)
@@ -166,7 +197,7 @@ Visualizer(x, ER_G, threshold, transcendence)
 % TODO: run X times to get a distribution of fitnessess (& time to best)
 
 %% (2c) Test random vaccination strategies
-%TODO: clean this section up to find the expected best fitness for a given 
+%TODO: clean this section up to find the expected best fitness for a given
 % number of random vaccinations (ie a control, to see how good the GA is).
 t=6;
 random_vaccs=zeros(P*t,V);
@@ -179,7 +210,7 @@ figure;hist(trials)
 title([num2str(mean(trials)) '  ' num2str(min(trials))])
 
 
-%% (2d) Figure 2: Vaccinations in toy networks (verification/explanatory) 
+%% (2d) Figure 2: Vaccinations in toy networks (verification/explanatory)
 % Show a run and explain simple happenings
 
 figure;
@@ -205,7 +236,7 @@ subplot(1,4,4)
 
 %% PART 3: RUN ON FLU NETS OF VARIOUS SIZES FOR ~3 DIFFERENT TRANSCENDENCE VALUES
 %% (3a) import flu networks
-load('H3N2_flu_net_components.mat'); 
+load('H3N2_flu_net_components.mat');
 flu_nets=adjmats; % ordered from largest to smallest
 clear adjmats
 
@@ -240,25 +271,25 @@ vaccineOpts = gaoptimset(...
 
 for transcendence=[1 1.5 2] % since we don't know what it is, try a few
     for i=length(flu_nets):-1:1 %for flu networks of size ~20 up to ~1000
-        
+
         flu_net=flu_nets{i};
         N = size(flu_net,1);
         population=zeros(P,V);
         for j=1:P
             population(j,:)=randsample(1:N,V);
         end
-        
+
         vaccineOpts.InitialPopulation=population;
-        
+
         % RUN GA X TIMES
         for run=1:num_GA_runs
 
-            % run GA 
+            % run GA
             [x,fval] = ga(@(y) SpreadingFitnessFcnCompSize(y, flu_net, threshold, transcendence), V, vaccineOpts);
 
             Visualizer(x, flu_net, threshold, transcendence)
         end
-            
+
     end
 end
 
