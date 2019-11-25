@@ -91,17 +91,11 @@ h(3)=subplot(2,2,3);
 h(4)=subplot(2,2,4);
 
 % Paste figures on the subplots
-copyobj(allchild(get(s,'CurrentAxes')),h(1));
-copyobj(allchild(get(c,'CurrentAxes')),h(2));
-copyobj(allchild(get(l,'CurrentAxes')),h(3));
-copyobj(allchild(get(e,'CurrentAxes')),h(4));
-
+copyobj(allchild(get(c,'CurrentAxes')),h(1));
+copyobj(allchild(get(k,'CurrentAxes')),h(2));
 % Add legends
-l(1)=title(h(1),'LegendForFirstFigure');
-l(2)=title(h(2),'LegendForFirstFigure');
-l(3)=title(h(3),'LegendForFirstFigure');
-l(4)=title(h(4),'LegendForFirstFigure');
-
+l(1)=legend(h(1),'LegendForFirstFigure')
+l(2)=legend(h(2),'LegendForSecondFigure')
 
 
 
