@@ -13,7 +13,7 @@ toy_nets{4} = ER;
 rng('shuffle') %random number generator seeded constantly for now
 
 %initialize parameters
-P = 50; % GA population size (change to higher val during main run)
+P = 10; % GA population size (change to higher val during main run)
 N = size(toy_nets{1},1); % # nodes
 nGen=40; % GA generations, very small # needed in part 1
 global V
@@ -34,13 +34,13 @@ end
 
 % create main data structures
 Toy_Solutions_Exp = {};
-N_reps = 2; % number of reps
+N = 2; % number of reps
 ToyMat = zeros(N*(length(transcendence_list))*length(toy_nets), 4);
 
 counter=0; % intialize counter to index matrix
 
 % replication loop (run for N reps and store data)
-for sample=1:N_reps
+for sample=1:N
 
     % run for a couple values of transcendence (=[2 3] shows interesting behavior)
     % store best solutions for transcendence (each net within)
@@ -109,7 +109,8 @@ end
 % Toy Solutions is a Matrix wit four columns (fitness, # calls, trans value, network type
 % 1 2 3 and 4 (lattice, star, chain and ER respectively))
 
-%% use best_solutions and best_fit with ER for a big figure
+%% use best_solutions and best_fit in part 2d with ER for a big figure
+
 
 % Thomas plot the four best toy NWs (chain, lattice, star and er) in a 2 by
 % 2 panel -Alex
@@ -158,7 +159,6 @@ l(4)=title(h(4),'\fontsize{36}Erd?s?R�nyi');
 %[ER_G, n, m]=ErdosRenyi(110, .02, seed);
 %[ER_G, n, m]=ErdosRenyi(0,.012,1);
 [ER_G, n, m]=ErdosRenyi(150,.012,randsample(1000,1));
-
 %% (2b) run GA on the ER graph
 rng('shuffle')
 %initialize
@@ -174,9 +174,6 @@ end
 threshold = .5;
 transcendence = 2;
 population=zeros(P,V);
-
-N_reps = 2; % number of replicates
-
 for j=1:P
     population(j,:)=randsample(1:N,V);
 end
@@ -195,29 +192,16 @@ vaccineOpts = gaoptimset(...
     'MutationFcn', {@randomResetMutation, mutProb},...
     'PlotFcn',{@gaplotbestf});
 
-ER_Mat = zeros(N_reps, 2); % final ER matrix
-
-for n = 1:N_reps
-
-    % run GA
-    [x,fval, exitFlag, Output] = ga(@(x) SpreadingFitnessFcnCompSize(x, ER_G, threshold, transcendence), V, vaccineOpts);
-    
-    ER_Mat(n, 1) = fval;
-    ER_Mat(n, 2) = Output.funccount;
-    
+% run GA
+[x,fval, exitFlag, Output] = ga(@(x) SpreadingFitnessFcnCompSize(x, ER_G, threshold, transcendence), V, vaccineOpts);
+ 
 % Visualizer(x, ER_G, threshold, transcendence)
 
-end
-
 % TODO: run X times to get a distribution of fitnessess (& time to best)
-% completed: ER_Mat is a matrix where the first column are the fitness
-% values and second are number 0f function calls. Every row is a replicate
-% run
 
 %% (2c) Test random vaccination strategies
 %TODO: clean this section up to find the expected best fitness for a given
 % number of random vaccinations (ie a control, to see how good the GA is).
-
 t=6;
 random_vaccs=zeros(P*t,V);
 for j=1:P*t
@@ -232,7 +216,23 @@ title([num2str(mean(trials)) '  ' num2str(min(trials))])
 %% (2d) Figure 2: Vaccinations in toy networks (verification/explanatory)
 % Show a run and explain simple happenings
 
-% completed by Thomas Above
+figure;
+% (a) Chain
+subplot(1,4,1)
+
+
+% (b) Star
+subplot(1,4,2)
+
+
+% (c) Lattice
+subplot(1,4,3)
+
+
+% (d) Erdos Renyi
+subplot(1,4,4)
+
+
 
 
 
