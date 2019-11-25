@@ -2,6 +2,15 @@
 %% (1a) create toy networks: lattice, star, chain
 toy_nets = ToyNets(10,10); % makes x by y lattice, N=x*y for all networks
 
+%% ERDOS RENYI RANDOM GRAPH for toy network study
+%% (2a) create ER random graphs
+%seed=27; %30, 32, 34, 50 for n=100 w/ 110,.025
+%[ER_G, n, m]=ErdosRenyi(110, .02, seed);
+%[ER_G, n, m]=ErdosRenyi(0,.012,1);
+[ER_G1]=ErdosRenyi(110,.025,randsample(1000,1));
+ER = full(ER_G);
+
+toy_nets{4} = ER;
 
 
 %% (1b) run GA on each of the toy networks
@@ -31,7 +40,7 @@ end
 % create main data structures
 Toy_Solutions_Exp = {};
 N = 2; % number of reps
-ToyMat = zeros(N*(length(transcendence_list))*3, 4);
+ToyMat = zeros(N*(length(transcendence_list))*length(toy_nets), 4);
 
 counter=0; % intialize counter to index matrix
 
@@ -88,9 +97,9 @@ for sample=1:N
         %best_fit{transcend_idx}=cur_best_fit;
         %num_calls{transcend_idx}=cur_num_calls; % added storage of num func calls - Alex
 
-        %  look at results (commented out while working on data structures - Alex)
-        %for i=1:3
-        %    Visualizer(cur_best_solutions{i}, toy_nets{i}, threshold, transcendence)
+         %look at results %(commented out while working on data structures - Alex)
+        %for i=1:4
+            %Visualizer(cur_best_solutions{i}, toy_nets{i}, threshold, transcendence)
         %end
     end
 
@@ -103,7 +112,7 @@ end
 %     brute force time for EACH net of size 100 choose 3
 
 % Toy Solutions is a Matrix wit four columns (fitness, # calls, trans value, network type
-% 1 2 and 3 (lattice, star, chain respectively))
+% 1 2 3 and 4 (lattice, star, chain and ER respectively))
 
 %% use best_solutions and best_fit in part 2d with ER for a big figure
 
@@ -189,9 +198,9 @@ vaccineOpts = gaoptimset(...
     'PlotFcn',{@gaplotbestf});
 
 % run GA
-[x,fval] = ga(@(x) SpreadingFitnessFcnCompSize(x, ER_G, threshold, transcendence), V, vaccineOpts);
-
-Visualizer(x, ER_G, threshold, transcendence)
+[x,fval, exitFlag, Output] = ga(@(x) SpreadingFitnessFcnCompSize(x, ER_G, threshold, transcendence), V, vaccineOpts);
+ 
+% Visualizer(x, ER_G, threshold, transcendence)
 
 % TODO: run X times to get a distribution of fitnessess (& time to best)
 
