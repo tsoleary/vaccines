@@ -101,10 +101,10 @@ copyobj(allchild(get(l,'CurrentAxes')),h(3));
 copyobj(allchild(get(e,'CurrentAxes')),h(4));
 
 % Add legends
-l(1)=title(h(1),'\fontsize{24}Star');
-l(2)=title(h(2),'\fontsize{24}Chain');
-l(3)=title(h(3),'\fontsize{24}Lattice');
-l(4)=title(h(4),'\fontsize{24}Erd?s?Rényi');
+l(1)=title(h(1),'\fontsize{36}Star');
+l(2)=title(h(2),'\fontsize{36}Chain');
+l(3)=title(h(3),'\fontsize{36}Lattice');
+l(4)=title(h(4),'\fontsize{36}Erd?s?Rényi');
 
 
 %% (1c) Figure 1: Diagram of fitness calculation
