@@ -247,7 +247,7 @@ clear adjmats
 
 %% (3b) run GA on flu nets
 
-num_GA_runs=1;
+num_GA_runs=3;
 P = 50; % GA population size
 nGen=20;
 global V
@@ -273,7 +273,7 @@ vaccineOpts = gaoptimset(...
 'PlotFcn',{@gaplotbestf});
 
 counter = 0;
-transList = [2];
+transList = [1 2];
 RealMat = zeros((num_GA_runs * length(transList) * length(flu_nets)), 4);
 
 for transcendence=1:length(transList) % since we don't know what it is, try a few
@@ -299,7 +299,7 @@ for transcendence=1:length(transList) % since we don't know what it is, try a fe
             RealMat(counter,1) = fval;
             RealMat(counter,2) = Output.funccount;
             RealMat(counter,3) = transList(transcendence);
-            RealMat(counter,4) = counter;
+            RealMat(counter,4) = N;
         end
 
     end
@@ -313,6 +313,9 @@ end
 %% (3c) Figure 3: Expected # strains in outbreak (fitness) vs network size (N), by transcendence.
 % uses results of 3b
 
+% writing out and and making figures and conducting stat anlaysis in R
+% because Matlab is shit at figures and as statisitcal package - Alex
+writematrix(RealMat, 'realNWdata.csv')
 
 
 %% Example of our networks

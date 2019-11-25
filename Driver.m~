@@ -247,7 +247,7 @@ clear adjmats
 
 %% (3b) run GA on flu nets
 
-num_GA_runs=1;
+num_GA_runs=3;
 P = 50; % GA population size
 nGen=20;
 global V
@@ -272,7 +272,11 @@ vaccineOpts = gaoptimset(...
 'MutationFcn', {@randomResetMutation, mutProb},...
 'PlotFcn',{@gaplotbestf});
 
-for transcendence=[2] % since we don't know what it is, try a few
+counter = 0;
+transList = [2];
+RealMat = zeros((num_GA_runs * length(transList) * length(flu_nets)), 4);
+
+for transcendence=1:length(transList) % since we don't know what it is, try a few
     for i=length(flu_nets):-1:1 %for flu networks of size ~20 up to ~1000
 
         flu_net=flu_nets{i};
@@ -287,20 +291,30 @@ for transcendence=[2] % since we don't know what it is, try a few
         % RUN GA X TIMES
         for run=1:num_GA_runs
             
+            counter = counter + 1;
+            
             % run GA
             [x, fval, exitFlag, Output] = ga(@(y) SpreadingFitnessFcnCompSize(y, flu_net, threshold, transcendence), V, vaccineOpts);
-            Visualizer(x, flu_net, threshold, transcendence)
+            %Visualizer(x, flu_net, threshold, transcendence)
+            RealMat(counter,1) = fval;
+            RealMat(counter,2) = Output.funccount;
+            RealMat(counter,3) = transList(transcendence);
+            RealMat(counter,4) = counter;
         end
 
     end
 end
 
-%TODO: Extract data for X number of runs of the above
+%Done: Extract data for X number of runs of the above 
+% RealMat matrix first col fitness the seoncond is number of func calls
+% third is trans value and the fourth is the netwrok 1:9 small:big - Alex
 
 
 %% (3c) Figure 3: Expected # strains in outbreak (fitness) vs network size (N), by transcendence.
 % uses results of 3b
 
+% writing out and and making figures and conducting stat anlaysis in R
+% because Matlab is shit at figures and statisitcal 
 
 
 %% Example of our networks
@@ -361,7 +375,7 @@ l(7)=title(h(7),'\fontsize{24}N=400');
 l(8)=title(h(8),'\fontsize{24}N=791');
 l(9)=title(h(9),'\fontsize{24}N=1430');
 
-
+% saved the example real nets into a 3 by 3 figure - Alex
 
 
 
