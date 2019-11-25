@@ -4,7 +4,7 @@ toy_nets = ToyNets(10,10); % makes x by y lattice, N=x*y for all networks
 
 %seed=27; %30, 32, 34, 50 for n=100 w/ 110,.025
 [ER_G1]=ErdosRenyi(110,.025,randsample(1000,1));
-ER = full(ER_G);
+ER = full(ER_G1);
 % adda 100 node ER to the toy networks
 toy_nets{4} = ER;
 
@@ -13,7 +13,7 @@ toy_nets{4} = ER;
 rng('shuffle') %random number generator seeded constantly for now
 
 %initialize parameters
-P = 50; % GA population size (change to higher val during main run)
+P = 10; % GA population size (change to higher val during main run)
 N = size(toy_nets{1},1); % # nodes
 nGen=40; % GA generations, very small # needed in part 1
 global V
@@ -35,7 +35,7 @@ end
 % create main data structures
 Toy_Solutions_Exp = {};
 N_reps = 2; % number of reps
-ToyMat = zeros(N*(length(transcendence_list))*length(toy_nets), 4);
+ToyMat = zeros(N_reps*(length(transcendence_list))*length(toy_nets), 4);
 
 counter=0; % intialize counter to index matrix
 
@@ -84,7 +84,7 @@ for sample=1:N_reps
             ToyMat(counter,1) = fval;
             ToyMat(counter,2) = Output.funccount;
             ToyMat(counter,3) = i;
-            ToyMat(counter,4) = transcend_idx;
+            ToyMat(counter,4) = transcendence;
 
         end
 
@@ -272,11 +272,15 @@ vaccineOpts = gaoptimset(...
 'MutationFcn', {@randomResetMutation, mutProb},...
 'PlotFcn',{@gaplotbestf});
 
-for transcendence=[2] % since we don't know what it is, try a few
+counter = 0;
+transList = [2];
+RealMat = zeros((num_GA_runs * length(transList) * length(flu_nets)), 4);
+
+for transcendence=1:length(transList) % since we don't know what it is, try a few
     for i=length(flu_nets):-1:1 %for flu networks of size ~20 up to ~1000
 
         flu_net=flu_nets{i};
-        %N = size(flu_net,1);
+        N = size(flu_net,1);
         population=zeros(P,V);
         for j=1:P
             population(j,:)=randsample(1:N,V);
@@ -286,17 +290,24 @@ for transcendence=[2] % since we don't know what it is, try a few
 
         % RUN GA X TIMES
         for run=1:num_GA_runs
-
+            
+            counter = counter + 1;
+            
             % run GA
             [x, fval, exitFlag, Output] = ga(@(y) SpreadingFitnessFcnCompSize(y, flu_net, threshold, transcendence), V, vaccineOpts);
-
-            Visualizer(x, flu_net, threshold, transcendence)
+            %Visualizer(x, flu_net, threshold, transcendence)
+            RealMat(counter,1) = fval;
+            RealMat(counter,2) = Output.funccount;
+            RealMat(counter,3) = transList(transcendence);
+            RealMat(counter,4) = counter;
         end
 
     end
 end
 
-%TODO: Extract data for X number of runs of the above
+%Done: Extract data for X number of runs of the above 
+% RealMat matrix first col fitness the seoncond is number of func calls
+% third is trans value and the fourth is the netwrok 1:9 small:big - Alex
 
 
 %% (3c) Figure 3: Expected # strains in outbreak (fitness) vs network size (N), by transcendence.
@@ -352,17 +363,17 @@ copyobj(allchild(get(eight,'CurrentAxes')),h(8));
 copyobj(allchild(get(nine,'CurrentAxes')),h(9));
 
 % Add legends
-l(1)=title(h(1),'\fontsize{24}Star');
-l(2)=title(h(2),'\fontsize{24}Chain');
-l(3)=title(h(3),'\fontsize{24}Lattice');
-l(4)=title(h(4),'\fontsize{24}Erd?s?R�nyi');
-l(5)=title(h(5),'\fontsize{24}Star');
-l(6)=title(h(6),'\fontsize{24}Chain');
-l(7)=title(h(7),'\fontsize{24}Lattice');
-l(8)=title(h(8),'\fontsize{24}Erd?s?R�nyi');
-l(9)=title(h(9),'\fontsize{24}Erd?s?R�nyi');
+l(1)=title(h(1),'\fontsize{24}N=20');
+l(2)=title(h(2),'\fontsize{24}N=43');
+l(3)=title(h(3),'\fontsize{24}N=52');
+l(4)=title(h(4),'\fontsize{24}N=81');
+l(5)=title(h(5),'\fontsize{24}N=105');
+l(6)=title(h(6),'\fontsize{24}N=223');
+l(7)=title(h(7),'\fontsize{24}N=400');
+l(8)=title(h(8),'\fontsize{24}N=791');
+l(9)=title(h(9),'\fontsize{24}N=1430');
 
-
+% saved the example real nets into a 3 by 3 figure - Alex
 
 
 
