@@ -13,9 +13,9 @@ toy_nets{4} = ER;
 rng('shuffle') %random number generator seeded constantly for now
 
 %initialize parameters
-P = 10; % GA population size (change to higher val during main run)
+P = 100; % GA population size (change to higher val during main run)
 N = size(toy_nets{1},1); % # nodes
-nGen=40; % GA generations, very small # needed in part 1
+nGen=30; % GA generations, very small # needed in part 1
 global V
 V = 3; % # vaccines
 mutProb = 1/V; % probabilty of mutation
@@ -34,7 +34,7 @@ end
 
 % create main data structures
 Toy_Solutions_Exp = {};
-N_reps = 2; % number of reps
+N_reps = 20; % number of reps
 ToyMat = zeros(N_reps*(length(transcendence_list))*length(toy_nets), 4);
 
 counter=0; % intialize counter to index matrix
@@ -106,8 +106,10 @@ end
 %     (ii) Compare this to a brute-force found optimal solution (~a few hrs
 %     brute force time for EACH net of size 100 choose 3
 
-% Toy Solutions is a Matrix wit four columns (fitness, # calls, trans value, network type
+% Toy_Mat is a Matrix wit four columns (fitness, # calls, trans value, network type
 % 1 2 3 and 4 (lattice, star, chain and ER respectively))
+
+%writematrix(ToyMat, 'toyNWdata.csv')
 
 %% use best_solutions and best_fit with ER for a big figure
 
@@ -247,9 +249,9 @@ clear adjmats
 
 %% (3b) run GA on flu nets
 
-num_GA_runs=3;
-P = 50; % GA population size
-nGen=20;
+num_GA_runs=20;
+P = 100; % GA population size
+nGen=30;
 global V
 V = 4; % # vaccines
 mutProb = 1/V; % probabilty of mutation
@@ -273,7 +275,7 @@ vaccineOpts = gaoptimset(...
 'PlotFcn',{@gaplotbestf});
 
 counter = 0;
-transList = [1 2];
+transList = [1 1.5 2];
 RealMat = zeros((num_GA_runs * length(transList) * length(flu_nets)), 4);
 
 for transcendence=1:length(transList) % since we don't know what it is, try a few
@@ -315,7 +317,7 @@ end
 
 % writing out and and making figures and conducting stat anlaysis in R
 % because Matlab is shit at figures and as statisitcal package - Alex
-writematrix(RealMat, 'realNWdata.csv')
+%writematrix(RealMat, 'realNWdata.csv')
 
 
 %% Example of our networks
