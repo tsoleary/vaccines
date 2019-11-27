@@ -24,7 +24,7 @@ fr <- ggplot(RealData, aes(y = Fitness, x = Network.Size, fill = Transcendence))
   geom_boxplot() +
   theme_minimal(base_size = 18) +
   labs(x="Network Size", y = "Fitness (prop. supercritical)", title = 'Fitness by Real Networks') +
-  theme(legend.position=c(.2, .8)) +
+  theme(legend.position=c(.1, .5)) +
   scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "trans.")
 
 
@@ -50,7 +50,7 @@ ft <- ggplot(toyData, aes(y = Fitness, x = Network, fill = Transcendence)) +
   geom_boxplot() +
   theme_minimal(base_size = 18) +
   labs(x="Network Type", y = "Fitness (prop. supercritical)", title = 'Fitness by Toy Networks') +
-  theme(legend.position=c(.8, .8)) + 
+  theme(legend.position=c(.1, .5)) + 
   scale_fill_manual(values = c('grey', 'steelblue'), name = "trans.")
 
 
@@ -58,8 +58,8 @@ ft <- ggplot(toyData, aes(y = Fitness, x = Network, fill = Transcendence)) +
 ct <- ggplot(toyData, aes(y = Func.Calls, x = Network, fill = Transcendence)) +
   geom_boxplot() +
   theme_minimal(base_size = 18) +
-  labs(x="Network Type", y = "# Function Calls", title = 'Function Calls by Toy Networks') +
-  theme(legend.position=c(.8, .8)) + 
+  labs(x="Network Type", y = "# Function Calls", title = 'Calls by Toy Networks') +
+  theme(legend.position=c(2, 2)) + 
   scale_fill_manual(values = c('grey', 'steelblue'), name = "trans.")
 
 
@@ -67,8 +67,8 @@ ct <- ggplot(toyData, aes(y = Func.Calls, x = Network, fill = Transcendence)) +
 cr <- ggplot(RealData, aes(y = Func.Calls, x = Network.Size, fill = Transcendence)) +
   geom_boxplot() +
   theme_minimal(base_size = 18) +
-  labs(x="Network Type", y = "# Function Calls", title = 'Function Calls by Real Networks') +
-  theme(legend.position=c(.8, .8)) + 
+  labs(x="Network Type", y = "# Function Calls", title = 'Calls by Real Networks') +
+  theme(legend.position=c(2, 2)) + 
   scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "trans.")
 
 library(cowplot)
