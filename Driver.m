@@ -164,7 +164,7 @@ l(4)=title(h(4),'\fontsize{36}Erd?s?R�nyi');
 %% (2b) run GA on the ER graph
 rng('shuffle')
 %initialize
-P = 200; % GA population size
+P = 100; % GA population size
 N = size(ER_G,1);
 nGen=30;
 global V
@@ -177,7 +177,7 @@ threshold = .5;
 transcendence = 2;
 population=zeros(P,V);
 
-N_reps = 2; % number of replicates
+N_reps = 30; % number of replicates
 
 for j=1:P
     population(j,:)=randsample(1:N,V);
@@ -210,6 +210,9 @@ for n = 1:N_reps
 % Visualizer(x, ER_G, threshold, transcendence)
 
 end
+
+figure; 
+hist(ER_Mat(:,1))
 
 % TODO: run X times to get a distribution of fitnessess (& time to best)
 % completed: ER_Mat is a matrix where the first column are the fitness
