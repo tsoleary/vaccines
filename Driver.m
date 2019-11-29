@@ -10,14 +10,16 @@ toy_nets{4} = ER;
 
 
 %% (1b) run GA on each of the 4 toy networks
+tic
 rng('shuffle') %random number generator seeded constantly for now
 
 %initialize parameters
 P = 100; % GA population size (change to higher val during main run)
 N = size(toy_nets{1},1); % # nodes
-nGen=30; % GA generations, very small # needed in part 1
+nGen=12; % GA generations, very small # needed in part 1
 global V
 V = 3; % # vaccines
+disp(V)
 mutProb = 1/V; % probabilty of mutation
 if V==1 % in case of 1 vaccine, set mutation=1/2 (not 1/1)
     mutProb=0.5;
@@ -34,7 +36,7 @@ end
 
 % create main data structures
 Toy_Solutions_Exp = {};
-N_reps = 1; % number of reps
+N_reps = 10; % number of reps
 ToyMat = zeros(N_reps*(length(transcendence_list))*length(toy_nets), 4);
 
 counter=0; % intialize counter to index matrix
@@ -62,8 +64,9 @@ for sample=1:N_reps
             'Vectorized','on',...
             'Generations', nGen, ...
             'FitnessLimit', 0, ...
-            'PlotFcn',{@gaplotbestf},...
-            'MutationFcn',{@randomResetMutation, mutProb});
+            'PlotFcn',{@gaplotbestf },...''
+            'MutationFcn',{@randomResetMutation, mutProb},....
+            'OutputFcn',{@outputFcn});
 
         % loop through each toy network
         % store best solution for each toy network
@@ -79,10 +82,14 @@ for sample=1:N_reps
             
             [x,fval,exitFlag, Output] = ga(@(x) SpreadingFitnessFcnCompSize(x, A, threshold, transcendence), V, vaccineOpts);
             cur_best_solutions{i}=x;
-
+            record = outputFcn();
+            fcncalls_to_best_solution = P * (record(end).LastImprovement + 1)
+            clear outputFcn
 
             ToyMat(counter,1) = fval;
-            ToyMat(counter,2) = Output.funccount;
+            %ToyMat(counter,2) = Output.funccount;
+            %changed to: time to best solution
+            ToyMat(counter,2) = fcncalls_to_best_solution;
             ToyMat(counter,3) = i;
             ToyMat(counter,4) = transcendence;
 
@@ -110,7 +117,8 @@ end
 % 1 2 3 and 4 (lattice, star, chain and ER respectively))
 
 %writematrix(ToyMat, 'toyNWdata.csv')
-
+toc
+csvwrite('toyNWdata.csv',ToyMat)
 %% use best_solutions and best_fit with ER for a big figure
 
 % Thomas plot the four best toy NWs (chain, lattice, star and er) in a 2 by
@@ -143,7 +151,7 @@ copyobj(allchild(get(e,'CurrentAxes')),h(4));
 l(1)=title(h(1),'\fontsize{36}Star');
 l(2)=title(h(2),'\fontsize{36}Chain');
 l(3)=title(h(3),'\fontsize{36}Lattice');
-l(4)=title(h(4),'\fontsize{36}Erd?s?R�nyi');
+l(4)=title(h(4),'\fontsize{36}Erd?s?Rï¿½nyi');
 
 
 
@@ -164,9 +172,10 @@ l(4)=title(h(4),'\fontsize{36}Erd?s?R�nyi');
 %% (2b) run GA on the ER graph
 rng('shuffle')
 %initialize
-P = 100; % GA population size
+P = 200; % GA population size
 N = size(ER_G,1);
 nGen=30;
+clear V;
 global V
 V = 4; % # vaccines
 mutProb = 1/V; % probabilty of mutation
@@ -177,13 +186,13 @@ threshold = .5;
 transcendence = 2;
 population=zeros(P,V);
 
-N_reps = 30; % number of replicates
+N_reps = 2; % number of replicates
 
 for j=1:P
     population(j,:)=randsample(1:N,V);
 end
 
-% set options for ga toolbox for bitstring
+% set options for ga toolbox 
 vaccineOpts = gaoptimset(...
     'PopulationType', 'doubleVector', ...
     'InitialPopulation', population, ...
@@ -195,7 +204,8 @@ vaccineOpts = gaoptimset(...
     'Generations', nGen, ...
     'FitnessLimit', 0, ...
     'MutationFcn', {@randomResetMutation, mutProb},...
-    'PlotFcn',{@gaplotbestf});
+    'PlotFcn',{@gaplotbestf},...
+    'OutputFcn',{@outputFcn});
 
 ER_Mat = zeros(N_reps, 2); % final ER matrix
 
@@ -203,16 +213,17 @@ for n = 1:N_reps
 
     % run GA
     [x,fval, exitFlag, Output] = ga(@(x) SpreadingFitnessFcnCompSize(x, ER_G, threshold, transcendence), V, vaccineOpts);
-    
+    record = outputFcn();
+    fcncalls_to_best_solution = P * (record(end).LastImprovement + 1);
+    clear outputFcn
+
     ER_Mat(n, 1) = fval;
-    ER_Mat(n, 2) = Output.funccount;
+    %ER_Mat(n, 2) = Output.funccount;
+    ER_Mat(n, 2) = fcncalls_to_best_solution;
     
 % Visualizer(x, ER_G, threshold, transcendence)
 
 end
-
-figure; 
-hist(ER_Mat(:,1))
 
 % TODO: run X times to get a distribution of fitnessess (& time to best)
 % completed: ER_Mat is a matrix where the first column are the fitness
@@ -252,7 +263,7 @@ clear adjmats
 
 %% (3b) run GA on flu nets
 
-num_GA_runs=20;
+num_GA_runs=3;
 P = 100; % GA population size
 nGen=30;
 global V
@@ -275,10 +286,11 @@ vaccineOpts = gaoptimset(...
 'Generations', nGen, ...
 'FitnessLimit', 0, ...
 'MutationFcn', {@randomResetMutation, mutProb},...
-'PlotFcn',{@gaplotbestf});
+'PlotFcn',{@gaplotbestf},...
+'OutputFcn',@outputFcn);
 
 counter = 0;
-transList = [1 1.5 2];
+transList = [.5 1 1.5];
 RealMat = zeros((num_GA_runs * length(transList) * length(flu_nets)), 4);
 
 for transcendence=1:length(transList) % since we don't know what it is, try a few
@@ -300,9 +312,13 @@ for transcendence=1:length(transList) % since we don't know what it is, try a fe
             
             % run GA
             [x, fval, exitFlag, Output] = ga(@(y) SpreadingFitnessFcnCompSize(y, flu_net, threshold, transcendence), V, vaccineOpts);
+            record = outputFcn();
+            fcncalls_to_best_solution = P * (record(end).LastImprovement + 1);
+            clear outputFcn
             %Visualizer(x, flu_net, threshold, transcendence)
             RealMat(counter,1) = fval;
-            RealMat(counter,2) = Output.funccount;
+            RealMat(counter,2) = fcncalls_to_best_solution;%Output.funccount;
+            
             RealMat(counter,3) = transList(transcendence);
             RealMat(counter,4) = N;
         end
@@ -320,7 +336,7 @@ end
 
 % writing out and and making figures and conducting stat anlaysis in R
 % because Matlab is shit at figures and as statisitcal package - Alex
-%writematrix(RealMat, 'realNWdata.csv')
+csvwrite('realNWdata1.csv',RealMat)
 
 
 %% Example of our networks
