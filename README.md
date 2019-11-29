@@ -2,7 +2,7 @@
 ### Evolutionary Computation Final Project
 #### Alex Burnham, & Thomas O'Leary, Blake Williams
 
-#### NOTES THURSDAY 11/28/19 (From the last meeting)
+#### NOTES THURSDAY 11/28/19 
 Adjusted functions calls to be up to the point at which the best solution was found.
 
 Generated temporal node/edge files to be used for the growing network part: 'days':= # days since 01/01/2000, indicating for a node when that strain was first sampled, and for an edge the most recent of its two endpoints (ie when that edge comes into existence). This will be used for the growing network to test solutions produced for the older ~1/2 of the network as it grows.
