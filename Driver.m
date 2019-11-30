@@ -130,18 +130,19 @@ csvwrite('toyNWdata.csv',ToyMat)
 %% (2a) create ER random graphs
 %seed=27; %30, 32, 34, 50 for n=100 w/ 110,.025
 %[ER_G, n, m]=ErdosRenyi(110, .02, seed);
-%[ER_G, n, m]=ErdosRenyi(0,.012,1);
-[ER_G, n, m]=ErdosRenyi(150,.012,randsample(1000,1));
+%[ER_G, n, m]=ErdosRenyi(150,.012,randsample(1000,1));
+[ER_G, n, m]=ErdosRenyi(53,.05,6);
+
 
 %% (2b) run GA on the ER graph
 rng('shuffle')
 %initialize
 P = 200; % GA population size
 N = size(ER_G,1);
-nGen=30;
+nGen=100;
 clear V;
 global V
-V = 4; % # vaccines
+V = 3; % # vaccines
 mutProb = 1/V; % probabilty of mutation
 if V==1
     mutProb=0.5;
@@ -193,6 +194,50 @@ end
 % completed: ER_Mat is a matrix where the first column are the fitness
 % values and second are number 0f function calls. Every row is a replicate
 % run
+
+%% (2b - part 2) Compare GA ER results to brute force search
+brute_vaccs = nchoosek(1:N, V);
+ 
+fval = zeros(size(brute_vaccs,1),1);
+tic
+for i = 1:size(brute_vaccs,1)
+    fval(i) = SpreadingFitnessFcnCompSize(brute_vaccs(i, :), ER_G, ...
+        threshold, transcendence);
+end
+toc
+
+minimum = min(fval);
+equal_best_solns = find(fval == minimum);
+
+best_vacc = brute_vaccs(equal_best_solns, :);
+
+% visually compare the GA and brute force true best solution
+Visualizer(best_vacc(1, :), ER_G, threshold, transcendence);
+saveas(gcf,'bruteForceSoln.fig');
+Visualizer(x, ER_G, threshold, transcendence);
+saveas(gcf,'gaSoln.fig');
+
+%% create figure comparing true best solution and ga solution
+% Load saved figures
+b=hgload('bruteForceSoln.fig');
+g=hgload('gaSoln.fig');
+
+% Prepare subplots
+figure
+h(1) = subtightplot(1,2,1,[0.05,0.01], 0.075, 0.05);
+set(gca,'XColor', 'none','YColor','none')
+h(2) = subtightplot(1,2,2,[0.05,0.01], 0.075, 0.05);
+set(gca,'XColor', 'none','YColor','none')
+
+% Paste figures on the subplots
+copyobj(allchild(get(b,'CurrentAxes')),h(1));
+copyobj(allchild(get(g,'CurrentAxes')),h(2));
+
+% Add legends
+l(1)=title(h(1),'\fontsize{24}Global Optimum');
+l(2)=title(h(2),'\fontsize{24}Best Solution Found');
+
+saveas(gcf,'compareBruteGA.fig');
 
 %% (2c) Test random vaccination strategies
 %TODO: clean this section up to find the expected best fitness for a given
