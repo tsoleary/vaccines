@@ -584,11 +584,12 @@ for day=days
     end
 end
 
+plot_days=days(days>=4772)-4772;
 figure
 hold on
-plot(fvals_rand,'-','linewidth',10,'color',[.5 .5 .5 .2])
-plot(fvals,'--','linewidth',2)
-plot(novacc,':','linewidth',3)
+plot(plot_days,fvals_rand,'-','linewidth',10,'color',[.5 .5 .5 .2])
+plot(plot_days,fvals,'--','linewidth',2)
+plot(plot_days,novacc,':','linewidth',3)
 hold off
 
 
