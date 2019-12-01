@@ -440,27 +440,156 @@ l(9)=title(h(9),'\fontsize{24}N=1430');
 
 
 %%  PART 4: RUN ON GROWING NETWORK FLU
-%% (4a) identify test network and optimal solution
-%TODO: this.
-%TODO: Blake provides network
-%TODO
+%% (4a) import network
+
+%import nodes
+filename = 'TemporalNodes.csv';
+delimiter = ',';
+startRow = 2;
+formatSpec = '%f%f%[^\n\r]';
+fileID = fopen(filename,'r');
+dataArray = textscan(fileID, formatSpec, 'Delimiter', delimiter, 'TextType', 'string', 'HeaderLines' ,startRow-1, 'ReturnOnError', false, 'EndOfLine', '\r\n');
+fclose(fileID);
+temporalNodes = [dataArray{1:end-1}];
+clearvars filename delimiter startRow formatSpec fileID dataArray ans;
 
 
-
-
+%import edges
+filename = 'TemporalEdges.csv';
+delimiter = ',';
+startRow = 2;
+formatSpec = '%f%f%f%[^\n\r]';
+fileID = fopen(filename,'r');
+dataArray = textscan(fileID, formatSpec, 'Delimiter', delimiter, 'TextType', 'string', 'HeaderLines' ,startRow-1, 'ReturnOnError', false, 'EndOfLine', '\r\n');
+fclose(fileID);
+temporalEdges = [dataArray{1:end-1}];
+temporalEdges = sortrows(temporalEdges,3);
+clearvars filename delimiter startRow formatSpec fileID dataArray ans;
 
 
 %% (4b) Grow network and evaluate fitness at each step
-%TODO
-%TODO
-%TODO
+nodeTimes=temporalNodes(:,2);
+[minT maxT]=bounds(nodeTimes);
 
+increment=50; %# days between evaluations.
+ns=[];
 
+days=sort([4772 minT:increment:maxT]);%from day of first observed strain to last
+x=[]; %initialize solution
+fvals=[]; %initialize fitnesses
+fvals_rand=[]; %initialize fitnesses
+novacc=[];
+%make full component
+nodes=array2table((temporalNodes(:,1)));
+G_full=graph();
+G_full=addnode(G_full, nodes);
+source=temporalEdges(:,1);
+target=temporalEdges(:,2);
+G_full=G_full.addedge(source,target);
+G_full=full(adjacency(G_full));
+ct=1;
+population=[];
+for day=days 
+    if day>=4772 %if network is 1/2 full size by # nodes
+        rng(4)
+        %find edges in existence at this time
+        idxs=temporalEdges(:,3)<=day;
 
-%% (4c) Figure 4: Expected # strains in outbreak (fitness) w/network growth (N)
-%TODO used data from 4b
-%TODO
-%TODO
+        %make network
+        source=temporalEdges(idxs,1);
+        target=temporalEdges(idxs,2);
+        G=graph(source, target);
+        G=full(adjacency(G));
+        [bins,binsizes] = conncomp(graph(G));
+
+        %run GA on first half of net
+        threshold = .5;
+        transcendence=1;
+        
+        
+        if day==4772
+            P = 100; % GA population size
+            nGen=20;
+            global V
+            V = 4; % # vaccines
+            mutProb = 1/V; % probabilty of mutation
+            
+            N = size(G,1);
+            population=zeros(P,V);
+            for j=1:P
+                population(j,:)=randsample(1:N,V);
+            end
+            
+            
+            vaccineOpts = gaoptimset(...
+                'PopulationType', 'doubleVector', ...
+                'PopulationSize',P,...
+                'InitialPopulation',population,...
+                'CrossoverFcn', @crossoversinglepoint, ...
+                'CrossoverFraction', 0.5, ...
+                'SelectionFcn',{@selectiontournament,2}, ... {@selectionstochunif}
+                'Vectorized','on',...
+                'Generations', nGen, ...
+                'FitnessLimit', 0, ...
+                'MutationFcn', {@randomResetMutation, mutProb},...
+                'PlotFcn',{@gaplotbestf},...
+                'OutputFcn',@outputFcn);
+            [x, fval, exitFlag, Output] = ga(@(y) SpreadingFitnessFcnCompSize(y, G, threshold, transcendence), V, vaccineOpts);
+            
+            % find the top 5% of random vaccination methods, testing as
+            % many as population size * generations to best GA solution.
+            record = outputFcn();
+            test_number = P * (record(end).LastImprovement + 1);
+            disp((record(end).LastImprovement + 1))
+            clear outputFcn
+            
+            randvacc=zeros(test_number,V);
+            for j=1:test_number
+                randvacc(j,:)=randsample(1:N,V);
+            end
+            best_fitness=ones(1,round(test_number*.05));
+            best_solutions=zeros(round(test_number*.05),V);
+            for j=1:test_number
+                curr_vacc=randvacc(j,:);
+                curr_fit=SpreadingFitnessFcnCompSizeGrow(curr_vacc,G,G_full,threshold,transcendence);
+                curr_worst=max(best_fitness);
+                if curr_fit<curr_worst
+                    idx=find(best_fitness==curr_worst,1);
+                    best_fitness(idx)=curr_fit;
+                    best_solutions(idx,:)=curr_vacc;
+                end
+            end
+            fvals_rand=best_fitness;
+        else
+            %give it knowledge of the full network for fitness calcs,
+            %negligible difference.
+            fval=SpreadingFitnessFcnCompSizeGrow(x,G,G_full,threshold,transcendence);
+            
+            fvals_rand_new=[];
+            for j=1:length(best_solutions)
+                curr_vacc=best_solutions(j,:);
+                fvals_rand_new=[fvals_rand_new SpreadingFitnessFcnCompSizeGrow(curr_vacc,G,G_full,threshold,transcendence)];
+            end
+            fvals_rand=[fvals_rand;fvals_rand_new];
+        end
+        ct=ct+1;
+        
+        %update fitness
+        fvals=[fvals fval];
+        
+        [~, binsize]=conncomp(graph(G));
+        disp(binsize)
+        novacc=[novacc sum(binsize.^2)/(size(G,1)^2)];
+        
+    end
+end
+
+figure
+hold on
+plot(fvals_rand,'-','linewidth',10,'color',[.5 .5 .5 .2])
+plot(fvals,'--','linewidth',2)
+plot(novacc,':','linewidth',3)
+hold off
 
 
 
