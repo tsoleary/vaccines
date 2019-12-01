@@ -25,7 +25,7 @@ if V==1 % in case of 1 vaccine, set mutation=1/2 (not 1/1)
     mutProb=0.5;
 end
 threshold = .5; % from 0 to 1, kept 1/2.
-transcendence_list = [1 2];
+transcendence_list = [2 3];
 
 %initialize population
 population=zeros(P,V);
@@ -116,7 +116,7 @@ end
 % Toy_Mat is a Matrix wit four columns (fitness, # calls, trans value, network type
 % 1 2 3 and 4 (lattice, star, chain and ER respectively))
 
-%writematrix(ToyMat, 'toyNWdataFinal.csv')
+%writematrix(ToyMat, 'toyNWdata.csv')
 toc
 %csvwrite('toyNWdata1.csv',ToyMat)
 %% (1c) Figure 1: Diagram of fitness calculation
