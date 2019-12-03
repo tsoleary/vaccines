@@ -2,6 +2,13 @@
 ### Evolutionary Computation Final Project
 #### Alex Burnham, & Thomas O'Leary, Blake Williams
 
+#### NOTES MONDAY 12/2/19 
+-Blake: run 3 vaccine version on real nets, save to a different filename, gets rid of net size 20/43/52
+-Blake: Brute force a couple nets of size 20/43/52/82 w/3 vaccines y-axis=time, x-axis=net size, 1=GA 2=
+-Tom: plot mean of ~100 random vaccinations, cut plot off at 1-2yrs, take best 1 of (timeToBestSol) * (popsize) many, repeat for as many GA runs
+-Alex: break up figures, fix  real net figure w solutions to be more readable, captions for figs, stats on runs so far, n choose k figure, writing on results, add random solution distributions to plots, ->get 3vacc data when available and incorporate, gets rid of net size 20/43/52
+
+
 #### NOTES THURSDAY 11/28/19 
 Adjusted # functions calls to be up to the point at which the best solution was found.
 

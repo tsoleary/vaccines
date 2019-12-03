@@ -477,7 +477,7 @@ ns=[];
 
 days=sort([4772 minT:increment:maxT]);%from day of first observed strain to last
 x=[]; %initialize solution
-fvals=[]; %initialize fitnesses
+fvals_ga=[]; %initialize fitnesses
 fvals_rand=[]; %initialize fitnesses
 novacc=[];
 %make full component
@@ -509,33 +509,41 @@ for day=days
         
         
         if day==4772
-            P = 100; % GA population size
+            ga_reps=10; %number of reps for the GA
+            P = 200; % GA population size
             nGen=20;
             global V
             V = 4; % # vaccines
             mutProb = 1/V; % probabilty of mutation
             
-            N = size(G,1);
-            population=zeros(P,V);
-            for j=1:P
-                population(j,:)=randsample(1:N,V);
+            ga_solutions=zeros(ga_reps,V);
+            
+            for k = 1:ga_reps
+            
+                N = size(G,1);
+                population=zeros(P,V);
+                for j=1:P
+                    population(j,:)=randsample(1:N,V);
+                end
+                
+                
+                vaccineOpts = gaoptimset(...
+                    'PopulationType', 'doubleVector', ...
+                    'PopulationSize',P,...
+                    'InitialPopulation',population,...
+                    'CrossoverFcn', @crossoversinglepoint, ...
+                    'CrossoverFraction', 0.5, ...
+                    'SelectionFcn',{@selectiontournament,2}, ... {@selectionstochunif}
+                    'Vectorized','on',...
+                    'Generations', nGen, ...
+                    'FitnessLimit', 0, ...
+                    'MutationFcn', {@randomResetMutation, mutProb},...
+                    'PlotFcn',{@gaplotbestf},...
+                    'OutputFcn',@outputFcn);
+                [ga_solutions(k,:), fval(k), exitFlag, Output] = ga(@(y) SpreadingFitnessFcnCompSize(y, G, threshold, transcendence), V, vaccineOpts);
+            
             end
-            
-            
-            vaccineOpts = gaoptimset(...
-                'PopulationType', 'doubleVector', ...
-                'PopulationSize',P,...
-                'InitialPopulation',population,...
-                'CrossoverFcn', @crossoversinglepoint, ...
-                'CrossoverFraction', 0.5, ...
-                'SelectionFcn',{@selectiontournament,2}, ... {@selectionstochunif}
-                'Vectorized','on',...
-                'Generations', nGen, ...
-                'FitnessLimit', 0, ...
-                'MutationFcn', {@randomResetMutation, mutProb},...
-                'PlotFcn',{@gaplotbestf},...
-                'OutputFcn',@outputFcn);
-            [x, fval, exitFlag, Output] = ga(@(y) SpreadingFitnessFcnCompSize(y, G, threshold, transcendence), V, vaccineOpts);
+            fvals_ga(1,:) = fval;
             
             % find the top 5% of random vaccination methods, testing as
             % many as population size * generations to best GA solution.
@@ -564,7 +572,13 @@ for day=days
         else
             %give it knowledge of the full network for fitness calcs,
             %negligible difference.
-            fval=SpreadingFitnessFcnCompSizeGrow(x,G,G_full,threshold,transcendence);
+             fvals_ga_new=[];
+            for j=1:size(ga_solutions,1)
+                curr_vacc=ga_solutions(j,:);
+                fvals_ga_new=[fvals_ga_new SpreadingFitnessFcnCompSizeGrow(curr_vacc,G,G_full,threshold,transcendence)];
+            end
+            fvals_ga=[fvals_ga;fvals_ga_new];           
+          
             
             fvals_rand_new=[];
             for j=1:length(best_solutions)
@@ -574,9 +588,6 @@ for day=days
             fvals_rand=[fvals_rand;fvals_rand_new];
         end
         ct=ct+1;
-        
-        %update fitness
-        fvals=[fvals fval];
         
         [~, binsize]=conncomp(graph(G));
         disp(binsize)
@@ -589,9 +600,9 @@ plot_days=days(days>=4772)-4772;
 figure
 hold on
 plot(plot_days,fvals_rand,'-','linewidth',10,'color',[.5 .5 .5 .2])
-plot(plot_days,fvals,'--','linewidth',2)
+plot(plot_days,fvals_ga,'-','linewidth',2)
 plot(plot_days,novacc,':','linewidth',3)
-hold off
+hold off 
 
 
 
