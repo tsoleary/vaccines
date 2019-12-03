@@ -7,6 +7,7 @@ library(dplyr)
 library(ggplot2)
 library(scales)
 library(cowplot)
+library(latex2exp)
 
 
 # read in our data for 20 reps of 3 trans values for 9 different nws
@@ -83,7 +84,7 @@ cowplot::plot_grid(ft,fr,ct,cr, labels = c("A", "B", "C", "D"), align = "v")
 
 
 # vector between ranges of real net sizes
-N <- 20:1430
+N <- 20:1500
 
 # vector of function calls required to brut force networks with 1 to 4 vaccines
 kn <- c(choose(k=1, n=N), choose(k=2, n=N), choose(k=3, n=N), choose(k=4, n=N))
@@ -101,26 +102,35 @@ library(plyr)
 # summarise values for actual function calls
 DF3 <- ddply(RealData, c("Network.Size"), summarise, 
              n = length(Func.Calls),
-             mean = mean(Func.Calls, na.rm=TRUE),
-             sd = sd(Func.Calls, na.rm=TRUE),
+             mean = log10(mean(Func.Calls, na.rm=TRUE)),
+             sd = log10(sd(Func.Calls, na.rm=TRUE)),
              se = sd / sqrt(n),
-             upper = mean+sd,
-             lower = mean-sd)
+             upper = mean+se,
+             lower = mean-se)
+
+# change -INF values to 0
+DF3[1,6:7] <- 0
+
 
 
 # work on function call plot
-ggplot(chooseDF, aes(x=Nvec, y = kn, group = Kvec, color=Kvec)) + 
-  geom_line(size=1.5) + theme_classic(base_size = 18) +
-  labs(y='log10(function calls)', x='network size', color='# Vaccines:') +
+ggplot(chooseDF, aes(x=Nvec, y = log10(kn), group = Kvec, color=Kvec)) + 
+  geom_line(size=1.8) + theme_classic(base_size = 18) +
+  labs(y=TeX("$\\binom{N}{k}$"), x='network size (N)', color='# Vaccines (k):') +
   theme(legend.position = 'top') +
   annotate("point", x = as.numeric(as.character(DF3$Network.Size)), 
            y = as.numeric(DF3$mean), 
-           colour = "blue") +
+           colour = "black", size=3) +
   annotate('segment', x = as.numeric(as.character(DF3$Network.Size)), 
            y = DF3$lower, xend = as.numeric(as.character(DF3$Network.Size)), 
-                   yend = DF3$upper) + scale_y_log10()
+                   yend = DF3$upper, size=1) + coord_cartesian(xlim = c(0, 1500), ylim = c(0,12)) 
+
 
 
 x=split(RealData, RealData$Transcendence)
 temp <- x$`1`[x$`1`$Network.Size=='1430', ]
 temp$Fitness
+TeX("$\\fra{N}{k}$")
+
+
+plot(TeX("A $\\LaTeX$ formula: $\\choose{a}{b} \\, \\frac{1}{e^{\\frac{hc}{\\lambda k_B T}} - 1}$"))
