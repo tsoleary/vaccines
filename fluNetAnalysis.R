@@ -8,6 +8,8 @@ library(ggplot2)
 library(scales)
 library(cowplot)
 library(latex2exp)
+library(plyr)
+library(ggforce)
 
 
 # read in our data for 20 reps of 3 trans values for 9 different nws
@@ -19,23 +21,26 @@ RealData <- read.csv("realNWdata2.csv",
 names(RealData) <- c('Fitness', 'Func.Calls', "Transcendence", 'Network.Size')
 
 # convert to character values
-RealData$Transcendence <- as.character(RealData$Transcendence)
+RealData$Transcendence <- as.character(RealData$Transcendence*2)
 RealData$Network.Size <- as.factor(RealData$Network.Size)
 
 RealData$Log_fitness <- -log10(RealData$Fitness + 10^-5) # log10(RealData$Fitness+1)
 
 
 
+RealDataLarge<-RealData[!(RealData$Network.Size %in% c(20, 43, 52)),]
+
+
 # plot figures for fittness
-fr <- ggplot(RealData, aes(y = Fitness, x = Network.Size, fill = Transcendence)) + 
+fr <- ggplot(RealDataLarge, aes(y = Fitness, x = Network.Size, fill = Transcendence)) + 
   geom_boxplot() +
-  theme_minimal(base_size = 18) +
+  theme_light(base_size = 20) +
   labs(x="Network Size", y = "prop. supercritical") +
   theme(legend.position = 'top',axis.text.x = element_text(angle = 45, hjust = 1)) +
   scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "Trans:") + 
-  coord_cartesian(ylim = c(0,.015)) #+ scale_y_log10()
+  facet_zoom(ylim = c(0, .015), zoom.size=1)
 
-
+fr
 
 
 # read in our data 20 reps for four toy nworks for 2 trans values
@@ -53,33 +58,55 @@ toyData$Transcendence <- as.character(toyData$Transcendence)
 # change factor names to real names of nws
 toyData$Network <- factor(toyData$Network, levels = c('1', '2', '3','4'),
                           labels = c('lattice', 'star', 'chain', 'E-R'))
+
 # plot figures for fittness
-ft <- ggplot(toyData, aes(y = log10(Fitness), x = Network, fill = Transcendence)) +
+ft <- ggplot(toyData, aes(y = Fitness, x = Network, fill = Transcendence)) +
   geom_boxplot() +
-  theme_minimal(base_size = 18) +
+  theme_light(base_size = 20) +
   labs(x="Network Type", y = "prop. supercritical") +
   theme(legend.position = 'top',axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "Trans:") + coord_cartesian(ylim = c(0,.4))
+  scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "Trans:") + 
+  facet_zoom(ylim = c(0, .075), zoom.size=1)
+ft
+
+# plot the four plots together
+cowplot::plot_grid(ft,fr, labels = c("A", "B"), align = "v", ncol=1)
+
+
+
+
+
+
+
 
 
 # plot figures for calls
 ct <- ggplot(toyData, aes(y = log10(Func.Calls), x = Network, fill = Transcendence)) +
   geom_boxplot() +
-  theme_minimal(base_size = 18) +
+  theme_light(base_size = 20) +
   labs(x="Network Type", y = "log10(func. calls)") +
   theme(legend.position = 'top',axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "Trans:") + coord_cartesian(ylim = c(2,4.5))
+  scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "Trans:") + coord_cartesian(ylim = c(2.25,4.25))
+ct
 
 # plot figures for calls
-cr <- ggplot(RealData, aes(y = log10(Func.Calls), x = Network.Size, fill = Transcendence)) +
+cr <- ggplot(RealDataLarge, aes(y = log10(Func.Calls), x = Network.Size, fill = Transcendence)) +
   geom_boxplot() +
-  theme_minimal(base_size = 18) +
+  theme_light(base_size = 20) +
   labs(x="Network Size", y = "log10(func. calls)") +
   theme(legend.position = 'top',axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "Trans:") + coord_cartesian(ylim = c(2,4.5))
+  scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "Trans:") + coord_cartesian(ylim = c(2.25,4.25))
+cr
+
 
 # plot the four plots together
-cowplot::plot_grid(ft,fr,ct,cr, labels = c("A", "B", "C", "D"), align = "v")
+cowplot::plot_grid(ct,cr, labels = c("A", "B"), align = "v", ncol=2)
+
+
+
+
+
+
 
 
 
@@ -98,7 +125,6 @@ Kvec <- as.character(c(rep(1, length(N)),rep(2, length(N)),rep(3, length(N)),rep
 # create a df
 chooseDF <- data.frame(kn, Nvec, as.character(Kvec))
 
-library(plyr)
 # summarise values for actual function calls
 DF3 <- ddply(RealData, c("Network.Size"), summarise, 
              n = length(Func.Calls),
@@ -111,12 +137,10 @@ DF3 <- ddply(RealData, c("Network.Size"), summarise,
 # change -INF values to 0
 DF3[1,6:7] <- 0
 
-
-
 # work on function call plot
 ggplot(chooseDF, aes(x=Nvec, y = log10(kn), group = Kvec, color=Kvec)) + 
-  geom_line(size=1.8) + theme_classic(base_size = 18) +
-  labs(y=TeX("$\\binom{N}{k}$"), x='network size (N)', color='# Vaccines (k):') +
+  geom_line(size=1.8) + theme_classic(base_size = 20) +
+  labs(y='func. calls (log10(N choose k))', x='network size (N)', color='# Vaccines (k):') +
   theme(legend.position = 'top') +
   annotate("point", x = as.numeric(as.character(DF3$Network.Size)), 
            y = as.numeric(DF3$mean), 
@@ -127,10 +151,10 @@ ggplot(chooseDF, aes(x=Nvec, y = log10(kn), group = Kvec, color=Kvec)) +
 
 
 
-x=split(RealData, RealData$Transcendence)
-temp <- x$`1`[x$`1`$Network.Size=='1430', ]
-temp$Fitness
-TeX("$\\fra{N}{k}$")
 
 
-plot(TeX("A $\\LaTeX$ formula: $\\choose{a}{b} \\, \\frac{1}{e^{\\frac{hc}{\\lambda k_B T}} - 1}$"))
+
+
+
+
+
