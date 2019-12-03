@@ -13,10 +13,10 @@ toy_nets{4} = ER;
 tic
 rng('shuffle') %random number generator seeded constantly for now
 
-%initialize parameters
-P = 100; % GA population size (change to higher val during main run)
+%initialize parameters 100 abd 12 orignal run
+P = 300; % GA population size (change to higher val during main run)
 N = size(toy_nets{1},1); % # nodes
-nGen=12; % GA generations, very small # needed in part 1
+nGen=50; % GA generations, very small # needed in part 1
 global V
 V = 3; % # vaccines
 disp(V)
@@ -25,7 +25,7 @@ if V==1 % in case of 1 vaccine, set mutation=1/2 (not 1/1)
     mutProb=0.5;
 end
 threshold = .5; % from 0 to 1, kept 1/2.
-transcendence_list = [1 2];
+transcendence_list = [2 2.5 3];
 
 %initialize population
 population=zeros(P,V);
@@ -36,7 +36,7 @@ end
 
 % create main data structures
 Toy_Solutions_Exp = {};
-N_reps = 10; % number of reps
+N_reps = 20; % number of reps
 ToyMat = zeros(N_reps*(length(transcendence_list))*length(toy_nets), 4);
 
 counter=0; % intialize counter to index matrix
@@ -301,9 +301,9 @@ clear adjmats
 
 %% (3b) run GA on flu nets
 
-num_GA_runs=3;
-P = 100; % GA population size
-nGen=30;
+num_GA_runs=20;
+P = 300; % GA population size
+nGen=50;
 global V
 V = 4; % # vaccines
 mutProb = 1/V; % probabilty of mutation
@@ -326,6 +326,7 @@ vaccineOpts = gaoptimset(...
 'MutationFcn', {@randomResetMutation, mutProb},...
 'PlotFcn',{@gaplotbestf},...
 'OutputFcn',@outputFcn);
+
 
 counter = 0;
 transList = [.5 1 1.5];
@@ -374,7 +375,7 @@ end
 
 % writing out and and making figures and conducting stat anlaysis in R
 % because Matlab is shit at figures and as statisitcal package - Alex
-csvwrite('realNWdata1.csv',RealMat)
+%csvwrite('realNWdata3.csv',RealMat)
 
 
 %% Example of our networks
