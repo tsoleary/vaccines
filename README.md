@@ -2,6 +2,14 @@
 ### Evolutionary Computation Final Project
 #### Alex Burnham, & Thomas O'Leary, Blake Williams
 
+#### NOTES TUESDAY 12/3/19 
+-Blake runs small net brute force, 3vacc transcendence=1.
+-Alex runs small net GA, 3vacc transcendence=1.
+-Alex runs random solutions for real nets to add to boxplots.
+-Tom makes figure.
+-Blake sends 3vacc to Alex for R figure.
+
+
 #### NOTES MONDAY 12/2/19 
 -Blake: run 3 vaccine version on real nets, save to a different filename, gets rid of net size 20/43/52
 -Blake: Brute force a couple nets of size 20/43/52/82 w/3 vaccines y-axis=time, x-axis=net size, 1=GA 2=
