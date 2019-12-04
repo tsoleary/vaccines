@@ -338,3 +338,25 @@ gr <- ggplot(growData, aes(y = fitness, x = days, fill = group)) +
 gr
 
 
+# growing network analysis, ga v. rand -----------------------------------------
+
+brutData <- read.csv("brutForceGAfig.csv",
+                     header = FALSE,
+                     stringsAsFactors = FALSE)
+
+colnames(brutData) <- c("fitness", "func_calls", "trans", "net")
+
+brutData$net <- as.factor(brutData$net)
+brutData$trans <- as.factor(brutData$trans)
+
+br <- ggplot(brutData, aes(y = fitness, x = net, fill = trans)) +
+  geom_boxplot() +
+  theme_minimal(base_size = 18) +
+  labs(x = "Days after vaccine selection", 
+       y = "Fitness") +
+  theme(legend.position = 'top',axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  scale_fill_manual(values = c('grey', 'black', 'steelblue'), name = "")
+br
+
+
+
