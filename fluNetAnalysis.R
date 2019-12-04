@@ -370,3 +370,22 @@ br <- ggplot(brutData, aes(y = fitness, x = net, fill = trans)) +
   theme(legend.position = 'top',axis.text.x = element_text(angle = 45, hjust = 1)) +
   scale_fill_manual(values = c('grey', 'black', 'steelblue'), name = "")
 br
+
+####################
+# fixing data for analysis
+
+
+# remove data names
+randToyMat<-unname(randToyMat)
+
+# create as a data frame
+toyDFMelt <- data.frame(randToyMat)
+
+# reshape the data
+toyDFMelt <- melt(data = toyDFMelt, id.vars = c("X1", "X2"), measure.vars = names(toyDFMelt[,3:1002]))
+
+names(toyDFMelt) <- c('Network', "Transcendence", "junk" ,'Fitness',  )
+
+toyDFMelt$Network <- factor(toyDFMelt$Network, levels = c('1', '2', '3','4'),
+                            labels = c('lattice', 'star', 'chain', 'E-R'))
+

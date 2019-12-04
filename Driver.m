@@ -286,7 +286,7 @@ copyobj(allchild(get(e,'CurrentAxes')),h(4));
 l(1)=title(h(1),'\fontsize{36}Star');
 l(2)=title(h(2),'\fontsize{36}Chain');
 l(3)=title(h(3),'\fontsize{36}Lattice');
-l(4)=title(h(4),'\fontsize{36} Erd?s?Rényi');
+l(4)=title(h(4),'\fontsize{36} Erd?s?RÃ©nyi');
 
 %% PART 3: RUN ON FLU NETS OF VARIOUS SIZES FOR ~3 DIFFERENT TRANSCENDENCE VALUES
 %% (3a) import flu networks
@@ -888,18 +888,5 @@ writematrix(RealMat, 'brutForceGAfig.csv')
 
 
 
-# remove data names
-randToyMat<-unname(randToyMat)
-
-# create as a data frame
-toyDFMelt <- data.frame(randToyMat)
-
-# reshape the data
-toyDFMelt <- melt(data = toyDFMelt, id.vars = c("X1", "X2"), measure.vars = names(toyDFMelt[,3:1002]))
-
-names(toyDFMelt) <- c('Network', "Transcendence", "junk" ,'Fitness',  )
-
-toyDFMelt$Network <- factor(toyDFMelt$Network, levels = c('1', '2', '3','4'),
-                          labels = c('lattice', 'star', 'chain', 'E-R'))
 
 
