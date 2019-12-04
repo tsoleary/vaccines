@@ -393,6 +393,11 @@ toyDFMelt$Network <- factor(toyDFMelt$Network, levels = c('1', '2', '3','4'),
 toyDFMelt$junk <- NULL
 
 
+statToy <- rbind.fill(toyDFMelt, toyData)
+statToy$group <- c(rep("random", length(toyDFMelt$Fitness)),rep('ga', length(toyData$Fitness)))
+
+
+
 #####################################################################################
 # real 3 vac
 # remove data names
@@ -408,6 +413,7 @@ names(real3DFMelt) <- c('Network', "Transcendence", "junk" ,'Fitness')
 
 real3DFMelt$junk <- NULL
 
+RealData3Vac
 
 #####################################################################################
 # real 4 vac
@@ -424,6 +430,7 @@ names(real4DFMelt) <- c('Network', "Transcendence", "junk" ,'Fitness')
 
 real4DFMelt$junk <- NULL
 
+RealData
 
 
 
