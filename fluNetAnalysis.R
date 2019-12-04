@@ -392,11 +392,13 @@ toyDFMelt$Network <- factor(toyDFMelt$Network, levels = c('1', '2', '3','4'),
                             labels = c('lattice', 'star', 'chain', 'E-R'))
 toyDFMelt$junk <- NULL
 
-
+# stat setup
 statToy <- rbind.fill(toyDFMelt, toyData)
 statToy$group <- c(rep("random", length(toyDFMelt$Fitness)),rep('ga', length(toyData$Fitness)))
 
-
+# toy model anlaysis 
+toyMod <- aov(data=statToy, Fitness~group+Transcendence*Network)
+summary(toyMod)
 
 #####################################################################################
 # real 3 vac
@@ -409,11 +411,20 @@ real3DFMelt <- data.frame(randRealMat3)
 # reshape the data
 real3DFMelt <- melt(data = real3DFMelt, id.vars = c("X1", "X2"), measure.vars = names(real3DFMelt[,3:1002]))
 
-names(real3DFMelt) <- c('Network', "Transcendence", "junk" ,'Fitness')
-
+names(real3DFMelt) <- c('Network.Size', "Transcendence", "junk" ,'Fitness')
 real3DFMelt$junk <- NULL
 
-RealData3Vac
+
+real3DFMelt$Network.Size <- factor(real3DFMelt$Network.Size, levels = c('1', '2', '3','4', '5', '6'),
+                            labels = c('81', '105', '233', '400', '791', '1430'))
+
+# stat setup
+stat3vac <- rbind.fill(real3DFMelt, RealData3Vac)
+stat3vac$group <- c(rep("random", length(real3DFMelt$Fitness)),rep('ga', length(RealData3Vac$Fitness)))
+
+# toy model anlaysis 
+Mod3 <- aov(data=stat3vac, Fitness~group+Transcendence*Network.Size)
+summary(Mod3)
 
 #####################################################################################
 # real 4 vac
@@ -426,11 +437,20 @@ real4DFMelt <- data.frame(randRealMat4)
 # reshape the data
 real4DFMelt <- melt(data = real4DFMelt, id.vars = c("X1", "X2"), measure.vars = names(real4DFMelt[,3:1002]))
 
-names(real4DFMelt) <- c('Network', "Transcendence", "junk" ,'Fitness')
 
+names(real4DFMelt) <- c('Network.Size', "Transcendence", "junk" ,'Fitness')
 real4DFMelt$junk <- NULL
 
-RealData
 
+real4DFMelt$Network.Size <- factor(real4DFMelt$Network.Size, levels = c('1', '2', '3','4', '5', '6'),
+                                   labels = c('81', '105', '233', '400', '791', '1430'))
+
+# stat setup
+stat4vac <- rbind.fill(real4DFMelt, RealData)
+stat4vac$group <- c(rep("random", length(real4DFMelt$Fitness)),rep('ga', length(RealData$Fitness)))
+
+# toy model anlaysis 
+Mod4 <- aov(data=stat4vac, Fitness~group+Transcendence*Network.Size)
+summary(Mod4)
 
 
