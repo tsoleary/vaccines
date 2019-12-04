@@ -297,7 +297,62 @@ load('H3N2_flu_net_components.mat');
 flu_nets=adjmats; % ordered from largest to smallest
 clear adjmats
 
+%% (3a pt2) brute force search flu networks
+fvals={};
+ct=1;
+for net_idx=9:-1:5 %search the smallest 4 networks
+    disp(net_idx)
+    %get network
+    cur_net=flu_nets{net_idx};
+    
+    N=size(cur_net,1);
+    V=3; %3 vaccine case
+    threshold=0.5;
+    transcendence=1;
+    
+    %get all possible vaccination combinations
+    brute_vaccs = nchoosek(1:N, V);
+    %brute_vaccs = brute_vaccs(1:200,:);
+    fval = zeros(size(brute_vaccs,1),1); %init fitness of each
 
+    tic
+    for i = 1:size(brute_vaccs,1)
+        if mod(i,1000)==0
+            disp(i)
+        end
+        fval(i) = SpreadingFitnessFcnCompSize(brute_vaccs(i, :), cur_net, ...
+            threshold, transcendence);
+    end
+    toc
+    fvals{ct}=fval;
+    ct=ct+1;
+end
+
+brute_force_real_3vac=fvals;
+save('bruteForceReal3vac.mat','brute_force_real_3vac')
+
+ %% (3a pt3) visualize brute force searches
+V=3;
+threshold=.5;
+transcendence=1;
+
+load('bruteForceReal3vac.mat')
+best_vaccs={};
+for net_idx=1:length(brute_force_real_3vac)
+
+    cur_fval=brute_force_real_3vac{net_idx};
+    cur_minimum = min(cur_fval);
+    equal_best_solns = find(cur_fval == cur_minimum);
+    
+    N=size(flu_nets{10-net_idx},1);
+    brute_vaccs=nchoosek(1:N, V);
+    
+    cur_best_vacc = brute_vaccs(equal_best_solns, :);
+    best_vaccs{net_idx}=cur_best_vacc;
+    Visualizer(cur_best_vacc(1, :), flu_nets{10-net_idx}, threshold, transcendence);
+    saveas(gcf,strcat('bruteForceSoln3vacRealN',int2str(N),'.fig'));
+
+end
 
 %% (3b) run GA on flu nets
 
