@@ -128,10 +128,10 @@ toc
 
 %% PART 2: ERDOS RENYI RANDOM GRAPH
 %% (2a) create ER random graphs
-%seed=27; %30, 32, 34, 50 for n=100 w/ 110,.025
-%[ER_G, n, m]=ErdosRenyi(110, .02, seed);
+seed=34; %30, 32, 34, 50 for n=100 w/ 110,.025
+[ER_G, n, m]=ErdosRenyi(110, .025, seed);
 %[ER_G, n, m]=ErdosRenyi(150,.012,randsample(1000,1));
-[ER_G, n, m]=ErdosRenyi(53,.05,6);
+%[ER_G, n, m]=ErdosRenyi(53,.05,6);
 
 
 %% (2b) run GA on the ER graph
@@ -151,7 +151,7 @@ threshold = .5;
 transcendence = 2;
 population=zeros(P,V);
 
-N_reps = 2; % number of replicates
+N_reps = 1; % number of replicates
 
 for j=1:P
     population(j,:)=randsample(1:N,V);
@@ -186,7 +186,7 @@ for n = 1:N_reps
     %ER_Mat(n, 2) = Output.funccount;
     ER_Mat(n, 2) = fcncalls_to_best_solution;
     
-% Visualizer(x, ER_G, threshold, transcendence)
+Visualizer(x, ER_G, threshold, transcendence)
 
 end
 
@@ -257,16 +257,13 @@ title([num2str(mean(trials)) '  ' num2str(min(trials))])
 %% (2d) Figure 2: Vaccinations in toy networks (verification/explanatory)
 % Show a run and explain simple happenings
 
-% completed by Thomas below
-
-% Thomas plot the four best toy NWs (chain, lattice, star and er) in a 2 by
-% 2 panel -Alex
+% Thomas plot the four best toy NWs (chain, lattice, star and er) in a 2 panel
 
 % Load saved figures
 s=hgload('starExample.fig');
 c=hgload('chainExample.fig');
 l=hgload('latticeExample.fig');
-e=hgload('erExample.fig');
+e=hgload('erExample2.fig');
 
 % Prepare subplots
 figure
@@ -289,7 +286,7 @@ copyobj(allchild(get(e,'CurrentAxes')),h(4));
 l(1)=title(h(1),'\fontsize{36}Star');
 l(2)=title(h(2),'\fontsize{36}Chain');
 l(3)=title(h(3),'\fontsize{36}Lattice');
-l(4)=title(h(4),'\fontsize{36}Erd?s?Rï¿½nyi');
+l(4)=title(h(4),'\fontsize{36} Erd?s?R�nyi');
 
 %% PART 3: RUN ON FLU NETS OF VARIOUS SIZES FOR ~3 DIFFERENT TRANSCENDENCE VALUES
 %% (3a) import flu networks
