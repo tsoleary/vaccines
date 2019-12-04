@@ -347,6 +347,9 @@ gr <- ggplot(NoMaxData, aes(y = fitness, x = days, fill = group)) +
   annotate("point", x = MaxData$days, y =MaxData$fitness, colour = "red", size=3, shape=18)
 gr
 
+# stats for time mod
+timeMod <- aov(data=NoMaxData, fitness~group*days)
+summary(timeMod)
 
 # growing network analysis, ga v. rand -----------------------------------------
 
