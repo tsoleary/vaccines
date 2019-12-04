@@ -11,6 +11,7 @@ library(latex2exp)
 library(plyr)
 library(ggforce)
 library(matrixStats)
+library(tidyr)
 
 
 
@@ -26,7 +27,7 @@ randToyMat <- as.matrix(randToyMat)
 # summary as dataframe
 randTDF <- data.frame(randToyMat[,c(1:2)], 
                       rowMeans(randToyMat[,c(3:1002)]), 
-                      rowSds(randToyMat[,c(3:1002)])/sqrt(1000))
+                      rowSds(randToyMat[,c(3:1002)]))
 
 # add names to dataframe
 names(randTDF) <- c('nwTypes', 'Trans', "mean", 'sd')
@@ -48,7 +49,7 @@ randRealMat3 <- as.matrix(randRealMat3)
 # summary as dataframe
 randRDF3 <- data.frame(randRealMat3[,c(1:2)], 
                        rowMeans(randRealMat3[,c(3:1002)]), 
-                       rowSds(randRealMat3[,c(3:1002)])/sqrt(1000))
+                       rowSds(randRealMat3[,c(3:1002)]))
 
 # add names to dataframe
 names(randRDF3) <- c('nwTypes', 'Trans', "mean", 'sd')
@@ -73,7 +74,7 @@ randRealMat4 <- as.matrix(randRealMat4)
 # summary as dataframe
 randRDF4 <- data.frame(randRealMat4[,c(1:2)], 
                        rowMeans(randRealMat4[,c(3:1002)]), 
-                       rowSds(randRealMat4[,c(3:1002)])/sqrt(1000))
+                       rowSds(randRealMat4[,c(3:1002)]))
 
 # add names to dataframe
 names(randRDF4) <- c('nwTypes', 'Trans', "mean", 'sd')
@@ -108,7 +109,8 @@ fr <- ggplot(RealDataLarge, aes(y = Fitness, x = Network.Size, fill = Transcende
   geom_boxplot() +
   theme_light(base_size = 20) +
   labs(x=NULL, y = "prop. supercritical") +
-  theme(legend.position = 'none',axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme(legend.position = 'none',axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "Trans:") + 
   annotate("point", x = split4$`2`$nwTypes, y =split4$`2`$mean, colour = "steelblue", size=3, shape=18) +
   annotate('segment', x = split4$`2`$nwTypes, y = split4$`2`$mean-split4$`2`$sd, 
@@ -148,7 +150,8 @@ ft <- ggplot(toyData, aes(y = Fitness, x = Network, fill = Transcendence)) +
   geom_boxplot() +
   theme_light(base_size = 20) +
   labs(x=NULL, y = "prop. supercritical") +
-  theme(legend.position = 'none',axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  theme(legend.position = 'none',axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "Trans:") + 
   annotate("point", x = toysplit$`2.5`$nwTypes, y =toysplit$`2.5`$mean, colour = "steelblue", size=3, shape=18) +
   annotate('segment', x = toysplit$`2.5`$nwTypes, y = toysplit$`2.5`$mean-toysplit$`2.5`$sd, 
@@ -160,7 +163,7 @@ ft <- ggplot(toyData, aes(y = Fitness, x = Network, fill = Transcendence)) +
   annotate('segment', x = toysplit$`3`$nwTypes+.25, y = toysplit$`3`$mean-toysplit$`3`$sd, 
            xend = toysplit$`3`$nwTypes+.25, yend = toysplit$`3`$mean+toysplit$`3`$sd, size=.5, colour = "black")+
   facet_zoom(ylim = c(0, .075), zoom.size=2, show.area=F)
-  
+
 ft
 
 
@@ -184,8 +187,8 @@ ft
 
 # read in our data for 20 reps of 3 trans values for 9 different nws
 RealData3Vac <- read.csv("realNWdata3vac.csv",
-                     header = FALSE,
-                     stringsAsFactors = FALSE)
+                         header = FALSE,
+                         stringsAsFactors = FALSE)
 
 # add names
 names(RealData3Vac) <- c('Fitness', 'Func.Calls', "Transcendence", 'Network.Size')
@@ -203,7 +206,8 @@ fr3 <- ggplot(RealData3Vac, aes(y = Fitness, x = Network.Size, fill = Transcende
   geom_boxplot() +
   theme_light(base_size = 20) +
   labs(x=NULL, y = "prop. supercritical") +
-  theme(legend.position = 'none',axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme(legend.position = 'none',axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "Trans:") + 
   annotate("point", x = split3$`2`$nwTypes, y =split3$`2`$mean, colour = "steelblue", size=3, shape=20) +
   annotate('segment', x = split3$`2`$nwTypes, y = split3$`2`$mean-split3$`2`$sd, 
@@ -231,7 +235,8 @@ ct <- ggplot(toyData, aes(y = log10(Func.Calls), x = Network, fill = Transcenden
   geom_boxplot() +
   theme_light(base_size = 20) +
   labs(x=NULL, y = "log10(func. calls)") +
-  theme(legend.position = c(.74,.74),axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  theme(legend.position = c(.74,.74),axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "Trans:") + 
   coord_cartesian(ylim = c(2.25,6))
 ct
@@ -241,7 +246,8 @@ cr <- ggplot(RealDataLarge, aes(y = log10(Func.Calls), x = Network.Size, fill = 
   geom_boxplot() +
   theme_light(base_size = 20) +
   labs(x=NULL, y = "log10(func. calls)") +
-  theme(legend.position = c(.74,.74),axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  theme(legend.position = c(.74,.74),axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "Trans:") + 
   coord_cartesian(ylim = c(2.25,6))
 cr
@@ -253,7 +259,8 @@ cr3 <- ggplot(RealData3Vac, aes(y = log10(Func.Calls), x = Network.Size, fill = 
   geom_boxplot() +
   theme_light(base_size = 20) +
   labs(x=NULL, y = "log10(func. calls)") +
-  theme(legend.position = c(.74,.74),axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  theme(legend.position = c(.74,.74),axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "Trans:") +
   coord_cartesian(ylim = c(2.25,6))
 cr3
@@ -308,7 +315,7 @@ ggplot(chooseDF, aes(x=Nvec, y = log10(kn), group = Kvec, color=Kvec)) +
            colour = "black", size=3) +
   annotate('segment', x = as.numeric(as.character(DF3$Network.Size)), 
            y = DF3$lower, xend = as.numeric(as.character(DF3$Network.Size)), 
-                   yend = DF3$upper, size=1) + coord_cartesian(xlim = c(0, 1500), ylim = c(0,12)) 
+           yend = DF3$upper, size=1) + coord_cartesian(xlim = c(0, 1500), ylim = c(0,12)) 
 
 
 # growing network analysis, ga v. rand -----------------------------------------
@@ -327,14 +334,36 @@ growData <- pivot_longer(growData,
 
 growData$days <- as.factor(growData$days)
 
+MaxData <- growData[growData$group=="Max",]
+NoMaxData <- growData[!growData$group=="Max",]
 
-gr <- ggplot(growData, aes(y = fitness, x = days, fill = group)) +
+gr <- ggplot(NoMaxData, aes(y = fitness, x = days, fill = group)) +
+  geom_boxplot() +
+  theme_minimal(base_size = 18) +
+  labs(x = "Days after vaccine selection", 
+       y = "Fitness") +
+  theme(legend.position = 'top',axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  scale_fill_manual(values = c('grey', 'steelblue'), name = "") +
+  annotate("point", x = MaxData$days, y =MaxData$fitness, colour = "red", size=3, shape=18)
+gr
+
+
+# growing network analysis, ga v. rand -----------------------------------------
+
+brutData <- read.csv("brutForceGAfig.csv",
+                     header = FALSE,
+                     stringsAsFactors = FALSE)
+
+colnames(brutData) <- c("fitness", "func_calls", "trans", "net")
+
+brutData$net <- as.factor(brutData$net)
+brutData$trans <- as.factor(brutData$trans)
+
+br <- ggplot(brutData, aes(y = fitness, x = net, fill = trans)) +
   geom_boxplot() +
   theme_minimal(base_size = 18) +
   labs(x = "Days after vaccine selection", 
        y = "Fitness") +
   theme(legend.position = 'top',axis.text.x = element_text(angle = 45, hjust = 1)) + 
   scale_fill_manual(values = c('grey', 'black', 'steelblue'), name = "")
-gr
-
-
+br
