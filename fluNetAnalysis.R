@@ -53,7 +53,8 @@ randRDF3 <- data.frame(randRealMat3[,c(1:2)],
 # add names to dataframe
 names(randRDF3) <- c('nwTypes', 'Trans', "mean", 'sd')
 
-
+randRDF3<-randRDF3[!(randRDF3$nwTypes %in% c(7, 8, 9)),]
+randRDF3$nwTypes <- rep(6:1,3)
 ##############################################################################################
 
 
@@ -106,8 +107,8 @@ split4<-split(randRDF4, randRDF4$Trans)
 fr <- ggplot(RealDataLarge, aes(y = Fitness, x = Network.Size, fill = Transcendence)) + 
   geom_boxplot() +
   theme_light(base_size = 20) +
-  labs(x="Network Size", y = "prop. supercritical") +
-  theme(legend.position = 'top',axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(x=NULL, y = "prop. supercritical") +
+  theme(legend.position = 'none',axis.text.x = element_text(angle = 45, hjust = 1)) +
   scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "Trans:") + 
   annotate("point", x = split4$`2`$nwTypes, y =split4$`2`$mean, colour = "steelblue", size=3, shape=18) +
   annotate('segment', x = split4$`2`$nwTypes, y = split4$`2`$mean-split4$`2`$sd, 
@@ -117,7 +118,7 @@ fr <- ggplot(RealDataLarge, aes(y = Fitness, x = Network.Size, fill = Transcende
            xend = split4$`1`$nwTypes-.25, yend = split4$`1`$mean+split4$`1`$sd, size=.5, colour = "grey") +
   annotate("point", x = split4$`3`$nwTypes+.25, y =split4$`3`$mean, colour = "black", size=3, shape=18) +
   annotate('segment', x = split4$`3`$nwTypes+.25, y = split4$`3`$mean-split4$`3`$sd, 
-           xend = split4$`3`$nwTypes+.25, yend = split4$`3`$mean+split4$`3`$sd, size=.5, colour = "black") +facet_zoom(ylim = c(0, .015), zoom.size=1, show.area=F)
+           xend = split4$`3`$nwTypes+.25, yend = split4$`3`$mean+split4$`3`$sd, size=.5, colour = "black") +facet_zoom(ylim = c(0, .015), zoom.size=2, show.area=F)
 
 fr
 
@@ -146,8 +147,8 @@ toysplit <- split(randTDF, randTDF$Trans)
 ft <- ggplot(toyData, aes(y = Fitness, x = Network, fill = Transcendence)) +
   geom_boxplot() +
   theme_light(base_size = 20) +
-  labs(x="Network Type", y = "prop. supercritical") +
-  theme(legend.position = 'top',axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x=NULL, y = "prop. supercritical") +
+  theme(legend.position = 'none',axis.text.x = element_text(angle = 45, hjust = 1)) + 
   scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "Trans:") + 
   annotate("point", x = toysplit$`2.5`$nwTypes, y =toysplit$`2.5`$mean, colour = "steelblue", size=3, shape=18) +
   annotate('segment', x = toysplit$`2.5`$nwTypes, y = toysplit$`2.5`$mean-toysplit$`2.5`$sd, 
@@ -158,7 +159,7 @@ ft <- ggplot(toyData, aes(y = Fitness, x = Network, fill = Transcendence)) +
   annotate("point", x = toysplit$`3`$nwTypes+.25, y =toysplit$`3`$mean, colour = "black", size=3, shape=18) +
   annotate('segment', x = toysplit$`3`$nwTypes+.25, y = toysplit$`3`$mean-toysplit$`3`$sd, 
            xend = toysplit$`3`$nwTypes+.25, yend = toysplit$`3`$mean+toysplit$`3`$sd, size=.5, colour = "black")+
-  facet_zoom(ylim = c(0, .075), zoom.size=1, show.area=F)
+  facet_zoom(ylim = c(0, .075), zoom.size=2, show.area=F)
   
 ft
 
@@ -167,8 +168,61 @@ ft
 
 
 
-# plot the four plots together
-cowplot::plot_grid(ft,fr, labels = c("A", "B"), align = "v", ncol=1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# read in our data for 20 reps of 3 trans values for 9 different nws
+RealData3Vac <- read.csv("realNWdata3vac.csv",
+                     header = FALSE,
+                     stringsAsFactors = FALSE)
+
+# add names
+names(RealData3Vac) <- c('Fitness', 'Func.Calls', "Transcendence", 'Network.Size')
+
+# convert to character values
+RealData3Vac$Transcendence <- as.character(RealData3Vac$Transcendence)
+RealData3Vac$Network.Size <- as.factor(RealData3Vac$Network.Size)
+
+
+
+split3<-split(randRDF3, randRDF3$Trans)
+
+# plot figures for fittness
+fr3 <- ggplot(RealData3Vac, aes(y = Fitness, x = Network.Size, fill = Transcendence)) + 
+  geom_boxplot() +
+  theme_light(base_size = 20) +
+  labs(x=NULL, y = "prop. supercritical") +
+  theme(legend.position = 'none',axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "Trans:") + 
+  annotate("point", x = split3$`2`$nwTypes, y =split3$`2`$mean, colour = "steelblue", size=3, shape=20) +
+  annotate('segment', x = split3$`2`$nwTypes, y = split3$`2`$mean-split3$`2`$sd, 
+           xend = split3$`2`$nwTypes, yend = split3$`2`$mean+split3$`2`$sd, size=.5, colour = "steelblue") +
+  annotate("point", x = split3$`1`$nwTypes-.25, y =split3$`1`$mean, colour = "grey", size=3, shape=18) +
+  annotate('segment', x = split3$`1`$nwTypes-.25, y = split3$`1`$mean-split3$`1`$sd, 
+           xend = split3$`1`$nwTypes-.25, yend = split3$`1`$mean+split3$`1`$sd, size=.5, colour = "grey") +
+  annotate("point", x = split3$`3`$nwTypes+.25, y =split3$`3`$mean, colour = "black", size=3, shape=18) +
+  annotate('segment', x = split3$`3`$nwTypes+.25, y = split3$`3`$mean-split3$`3`$sd, 
+           xend = split3$`3`$nwTypes+.25, yend = split3$`3`$mean+split3$`3`$sd, size=.5, colour = "black") +facet_zoom(ylim = c(0, .0083), zoom.size=2, show.area=F)
+
+fr3
+
+
+
+
+
+
+
 
 
 
@@ -176,26 +230,42 @@ cowplot::plot_grid(ft,fr, labels = c("A", "B"), align = "v", ncol=1)
 ct <- ggplot(toyData, aes(y = log10(Func.Calls), x = Network, fill = Transcendence)) +
   geom_boxplot() +
   theme_light(base_size = 20) +
-  labs(x="Network Type", y = "log10(func. calls)") +
-  theme(legend.position = 'top',axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x=NULL, y = "log10(func. calls)") +
+  theme(legend.position = c(.8,.8),axis.text.x = element_text(angle = 45, hjust = 1)) + 
   scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "Trans:") + 
-  coord_cartesian(ylim = c(2.25,4.25))
+  coord_cartesian(ylim = c(2.25,6))
 ct
 
 # plot figures for calls
 cr <- ggplot(RealDataLarge, aes(y = log10(Func.Calls), x = Network.Size, fill = Transcendence)) +
   geom_boxplot() +
   theme_light(base_size = 20) +
-  labs(x="Network Size", y = "log10(func. calls)") +
-  theme(legend.position = 'top',axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x=NULL, y = "log10(func. calls)") +
+  theme(legend.position = c(.8,.8),axis.text.x = element_text(angle = 45, hjust = 1)) + 
   scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "Trans:") + 
-  coord_cartesian(ylim = c(2.25,4.25))
+  coord_cartesian(ylim = c(2.25,6))
 cr
 
 
-# plot the four plots together
-cowplot::plot_grid(ct,cr, labels = c("A", "B"), align = "v", ncol=2)
 
+# plot figures for calls
+cr3 <- ggplot(RealData3Vac, aes(y = log10(Func.Calls), x = Network.Size, fill = Transcendence)) +
+  geom_boxplot() +
+  theme_light(base_size = 20) +
+  labs(x=NULL, y = "log10(func. calls)") +
+  theme(legend.position = c(.8,.8),axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "Trans:") +
+  coord_cartesian(ylim = c(2.25,6))
+cr3
+
+
+
+
+
+
+# plot the four plots together
+cowplot::plot_grid(ct,ft, cr3, fr3, cr,fr, labels = c("A", "B", "C","D","E","F"), 
+                   align = "hv", ncol=2, rel_widths = c(1,2))
 
 
 
