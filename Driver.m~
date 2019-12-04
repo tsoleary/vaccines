@@ -13,10 +13,10 @@ toy_nets{4} = ER;
 tic
 rng('shuffle') %random number generator seeded constantly for now
 
-%initialize parameters
-P = 100; % GA population size (change to higher val during main run)
+%initialize parameters 100 abd 12 orignal run
+P = 300; % GA population size (change to higher val during main run)
 N = size(toy_nets{1},1); % # nodes
-nGen=12; % GA generations, very small # needed in part 1
+nGen=50; % GA generations, very small # needed in part 1
 global V
 V = 3; % # vaccines
 disp(V)
@@ -36,7 +36,7 @@ end
 
 % create main data structures
 Toy_Solutions_Exp = {};
-N_reps = 10; % number of reps
+N_reps = 20; % number of reps
 ToyMat = zeros(N_reps*(length(transcendence_list))*length(toy_nets), 4);
 
 counter=0; % intialize counter to index matrix
@@ -301,7 +301,7 @@ clear adjmats
 
 %% (3b) run GA on flu nets
 
-num_GA_runs=8;
+num_GA_runs=20;
 P = 300; % GA population size
 nGen=50;
 global V
@@ -329,7 +329,7 @@ vaccineOpts = gaoptimset(...
 
 
 counter = 0;
-transList = [1.5];
+transList = [.5 1 1.5];
 RealMat = zeros((num_GA_runs * length(transList) * length(flu_nets)), 4);
 
 for transcendence=1:length(transList) % since we don't know what it is, try a few
@@ -347,7 +347,7 @@ for transcendence=1:length(transList) % since we don't know what it is, try a fe
         % RUN GA X TIMES
         for run=1:num_GA_runs
             
-            counter = counter + 1
+            counter = counter + 1;
             
             % run GA
             [x, fval, exitFlag, Output] = ga(@(y) SpreadingFitnessFcnCompSize(y, flu_net, threshold, transcendence), V, vaccineOpts);
@@ -375,7 +375,7 @@ end
 
 % writing out and and making figures and conducting stat anlaysis in R
 % because Matlab is shit at figures and as statisitcal package - Alex
-csvwrite('realNWdata3.csv',RealMat)
+%csvwrite('realNWdata3.csv',RealMat)
 
 
 %% Example of our networks
@@ -477,7 +477,7 @@ ns=[];
 
 days=sort([4772 minT:increment:maxT]);%from day of first observed strain to last
 x=[]; %initialize solution
-fvals=[]; %initialize fitnesses
+fvals_ga=[]; %initialize fitnesses
 fvals_rand=[]; %initialize fitnesses
 novacc=[];
 %make full component
@@ -509,33 +509,41 @@ for day=days
         
         
         if day==4772
-            P = 100; % GA population size
+            ga_reps=10; %number of reps for the GA
+            P = 200; % GA population size
             nGen=20;
             global V
             V = 4; % # vaccines
             mutProb = 1/V; % probabilty of mutation
             
-            N = size(G,1);
-            population=zeros(P,V);
-            for j=1:P
-                population(j,:)=randsample(1:N,V);
+            ga_solutions=zeros(ga_reps,V);
+            
+            for k = 1:ga_reps
+            
+                N = size(G,1);
+                population=zeros(P,V);
+                for j=1:P
+                    population(j,:)=randsample(1:N,V);
+                end
+                
+                
+                vaccineOpts = gaoptimset(...
+                    'PopulationType', 'doubleVector', ...
+                    'PopulationSize',P,...
+                    'InitialPopulation',population,...
+                    'CrossoverFcn', @crossoversinglepoint, ...
+                    'CrossoverFraction', 0.5, ...
+                    'SelectionFcn',{@selectiontournament,2}, ... {@selectionstochunif}
+                    'Vectorized','on',...
+                    'Generations', nGen, ...
+                    'FitnessLimit', 0, ...
+                    'MutationFcn', {@randomResetMutation, mutProb},...
+                    'PlotFcn',{@gaplotbestf},...
+                    'OutputFcn',@outputFcn);
+                [ga_solutions(k,:), fval(k), exitFlag, Output] = ga(@(y) SpreadingFitnessFcnCompSize(y, G, threshold, transcendence), V, vaccineOpts);
+            
             end
-            
-            
-            vaccineOpts = gaoptimset(...
-                'PopulationType', 'doubleVector', ...
-                'PopulationSize',P,...
-                'InitialPopulation',population,...
-                'CrossoverFcn', @crossoversinglepoint, ...
-                'CrossoverFraction', 0.5, ...
-                'SelectionFcn',{@selectiontournament,2}, ... {@selectionstochunif}
-                'Vectorized','on',...
-                'Generations', nGen, ...
-                'FitnessLimit', 0, ...
-                'MutationFcn', {@randomResetMutation, mutProb},...
-                'PlotFcn',{@gaplotbestf},...
-                'OutputFcn',@outputFcn);
-            [x, fval, exitFlag, Output] = ga(@(y) SpreadingFitnessFcnCompSize(y, G, threshold, transcendence), V, vaccineOpts);
+            fvals_ga(1,:) = fval;
             
             % find the top 5% of random vaccination methods, testing as
             % many as population size * generations to best GA solution.
@@ -564,7 +572,13 @@ for day=days
         else
             %give it knowledge of the full network for fitness calcs,
             %negligible difference.
-            fval=SpreadingFitnessFcnCompSizeGrow(x,G,G_full,threshold,transcendence);
+             fvals_ga_new=[];
+            for j=1:size(ga_solutions,1)
+                curr_vacc=ga_solutions(j,:);
+                fvals_ga_new=[fvals_ga_new SpreadingFitnessFcnCompSizeGrow(curr_vacc,G,G_full,threshold,transcendence)];
+            end
+            fvals_ga=[fvals_ga;fvals_ga_new];           
+          
             
             fvals_rand_new=[];
             for j=1:length(best_solutions)
@@ -574,9 +588,6 @@ for day=days
             fvals_rand=[fvals_rand;fvals_rand_new];
         end
         ct=ct+1;
-        
-        %update fitness
-        fvals=[fvals fval];
         
         [~, binsize]=conncomp(graph(G));
         disp(binsize)
@@ -589,13 +600,160 @@ plot_days=days(days>=4772)-4772;
 figure
 hold on
 plot(plot_days,fvals_rand,'-','linewidth',10,'color',[.5 .5 .5 .2])
-plot(plot_days,fvals,'--','linewidth',2)
+plot(plot_days,fvals_ga,'-','linewidth',2)
 plot(plot_days,novacc,':','linewidth',3)
-hold off
+hold off 
 
 
 
-%% (4d) repeat with simulated network via Alex's lego algorithm
-%TODO
-%TODO
-%TODO
+
+%% Test random vaccination strategies for toy NWs
+randSize = 1000;
+threshold = .5;
+transcendenceList = [2 2.5 3];
+
+%nw = toy_nets{1};
+
+global V
+V = 3; % # vaccines
+
+
+
+
+randToyMat = zeros(length(toy_nets)*length(transcendenceList), 2+randSize);
+
+counter=0; % intialize counter to index matrix
+
+
+for transcend_idx=1:length(transcendenceList)
+    transcendence=transcendenceList(transcend_idx);
+    
+        for i=1:length(toy_nets)
+
+        %get network and N
+        nw=toy_nets{i};
+        N=size(nw,1);
+
+        counter=counter+1; % counter to fill matrix
+        
+        % pick solutions 
+        random_vaccs=zeros(randSize,V);
+        for j=1:randSize
+            random_vaccs(j,:)=randsample(1:N,V);
+        end
+
+        % evaluate solutions
+        trials=SpreadingFitnessFcnCompSize(random_vaccs, nw, threshold, transcendence);
+
+        randToyMat(counter,1) = i;
+        randToyMat(counter,2) = transcendence;
+        randToyMat(counter,3:3+randSize-1) = trials;
+        
+        end        
+
+end
+
+writematrix(randToyMat, 'randToyMat.csv')
+
+
+
+
+%% Test random vaccination strategies for Real NWs (3 vac)
+randSize = 1000;
+threshold = .5;
+transcendenceList = [1 2 3];
+
+
+global V
+V = 3; % # vaccines
+
+
+randRealMat3 = zeros(length(flu_nets)*length(transcendenceList), 2+randSize);
+
+counter=0; % intialize counter to index matrix
+
+
+for transcend_idx=1:length(transcendenceList)
+    transcendence=transcendenceList(transcend_idx);
+    
+        for i=1:length(flu_nets)
+
+        %get network and N
+        nw=flu_nets{i};
+        N=size(nw,1);
+
+        counter=counter+1; % counter to fill matrix
+        
+        % pick solutions 
+        random_vaccs=zeros(randSize,V);
+        for j=1:randSize
+            random_vaccs(j,:)=randsample(1:N,V);
+        end
+
+        % evaluate solutions
+        trials=SpreadingFitnessFcnCompSize(random_vaccs, nw, threshold, transcendence);
+
+        randRealMat3(counter,1) = i;
+        randRealMat3(counter,2) = transcendence;
+        randRealMat3(counter,3:3+randSize-1) = trials;
+        
+        end        
+
+end
+
+writematrix(randRealMat3, 'randRealMat3.csv')
+
+
+%% Test random vaccination strategies for Real NWs (4 vac)
+randSize = 1000;
+threshold = .5;
+transcendenceList = [1 2 3];
+
+
+
+global V
+V = 4; % # vaccines
+
+
+
+
+randRealMat4 = zeros(length(toy_nets)*length(transcendenceList), 2+randSize);
+
+counter=0; % intialize counter to index matrix
+
+
+for transcend_idx=1:length(transcendenceList)
+    transcendence=transcendenceList(transcend_idx);
+    
+        for i=1:length(flu_nets)
+
+        %get network and N
+        nw=flu_nets{i};
+        N=size(nw,1);
+
+        counter=counter+1; % counter to fill matrix
+        
+        % pick solutions 
+        random_vaccs=zeros(randSize,V);
+        for j=1:randSize
+            random_vaccs(j,:)=randsample(1:N,V);
+        end
+
+        % evaluate solutions
+        trials=SpreadingFitnessFcnCompSize(random_vaccs, nw, threshold, transcendence);
+
+        randRealMat4(counter,1) = i;
+        randRealMat4(counter,2) = transcendence;
+        randRealMat4(counter,3:3+randSize-1) = trials;
+        
+        end        
+
+end
+
+writematrix(randRealMat4, 'randRealMat4.csv')
+
+
+
+
+
+

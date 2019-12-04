@@ -10,10 +10,83 @@ library(cowplot)
 library(latex2exp)
 library(plyr)
 library(ggforce)
+library(matrixStats)
+
+
+
+
+##############################################################################################
+# read in random data for toy networks
+randToyMat <- read.csv("randToyMat.csv",
+                       header = FALSE,
+                       stringsAsFactors = FALSE)
+# make a matrix
+randToyMat <- as.matrix(randToyMat)
+
+# summary as dataframe
+randTDF <- data.frame(randToyMat[,c(1:2)], 
+                      rowMeans(randToyMat[,c(3:1002)]), 
+                      rowSds(randToyMat[,c(3:1002)])/sqrt(1000))
+
+# add names to dataframe
+names(randTDF) <- c('nwTypes', 'Trans', "mean", 'sd')
+##############################################################################################
+
+
+
+
+
+
+##############################################################################################
+# read in random data for toy networks
+randRealMat3 <- read.csv("randRealMat3.csv",
+                         header = FALSE,
+                         stringsAsFactors = FALSE)
+# make a matrix
+randRealMat3 <- as.matrix(randRealMat3)
+
+# summary as dataframe
+randRDF3 <- data.frame(randRealMat3[,c(1:2)], 
+                       rowMeans(randRealMat3[,c(3:1002)]), 
+                       rowSds(randRealMat3[,c(3:1002)])/sqrt(1000))
+
+# add names to dataframe
+names(randRDF3) <- c('nwTypes', 'Trans', "mean", 'sd')
+
+
+##############################################################################################
+
+
+
+
+
+
+##############################################################################################
+# read in random data for toy networks
+randRealMat4 <- read.csv("randRealMat4.csv",
+                         header = FALSE,
+                         stringsAsFactors = FALSE)
+# make a matrix
+randRealMat4 <- as.matrix(randRealMat4)
+
+# summary as dataframe
+randRDF4 <- data.frame(randRealMat4[,c(1:2)], 
+                       rowMeans(randRealMat4[,c(3:1002)]), 
+                       rowSds(randRealMat4[,c(3:1002)])/sqrt(1000))
+
+# add names to dataframe
+names(randRDF4) <- c('nwTypes', 'Trans', "mean", 'sd')
+
+randRDF4<-randRDF4[!(randRDF4$nwTypes %in% c(7, 8, 9)),]
+randRDF4$nwTypes <- rep(6:1,3)
+##############################################################################################
+
+
+
 
 
 # read in our data for 20 reps of 3 trans values for 9 different nws
-RealData <- read.csv("realNWdata2.csv",
+RealData <- read.csv("realNWdata4vac.csv",
                      header = FALSE,
                      stringsAsFactors = FALSE)
 
@@ -25,11 +98,9 @@ RealData$Transcendence <- as.character(RealData$Transcendence*2)
 RealData$Network.Size <- as.factor(RealData$Network.Size)
 
 RealData$Log_fitness <- -log10(RealData$Fitness + 10^-5) # log10(RealData$Fitness+1)
-
-
-
 RealDataLarge<-RealData[!(RealData$Network.Size %in% c(20, 43, 52)),]
 
+split4<-split(randRDF4, randRDF4$Trans)
 
 # plot figures for fittness
 fr <- ggplot(RealDataLarge, aes(y = Fitness, x = Network.Size, fill = Transcendence)) + 
@@ -38,13 +109,21 @@ fr <- ggplot(RealDataLarge, aes(y = Fitness, x = Network.Size, fill = Transcende
   labs(x="Network Size", y = "prop. supercritical") +
   theme(legend.position = 'top',axis.text.x = element_text(angle = 45, hjust = 1)) +
   scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "Trans:") + 
-  facet_zoom(ylim = c(0, .015), zoom.size=1)
+  annotate("point", x = split4$`2`$nwTypes, y =split4$`2`$mean, colour = "steelblue", size=3, shape=18) +
+  annotate('segment', x = split4$`2`$nwTypes, y = split4$`2`$mean-split4$`2`$sd, 
+           xend = split4$`2`$nwTypes, yend = split4$`2`$mean+split4$`2`$sd, size=.5, colour = "steelblue") +
+  annotate("point", x = split4$`1`$nwTypes-.25, y =split4$`1`$mean, colour = "grey", size=3, shape=18) +
+  annotate('segment', x = split4$`1`$nwTypes-.25, y = split4$`1`$mean-split4$`1`$sd, 
+           xend = split4$`1`$nwTypes-.25, yend = split4$`1`$mean+split4$`1`$sd, size=.5, colour = "grey") +
+  annotate("point", x = split4$`3`$nwTypes+.25, y =split4$`3`$mean, colour = "black", size=3, shape=18) +
+  annotate('segment', x = split4$`3`$nwTypes+.25, y = split4$`3`$mean-split4$`3`$sd, 
+           xend = split4$`3`$nwTypes+.25, yend = split4$`3`$mean+split4$`3`$sd, size=.5, colour = "black") +facet_zoom(ylim = c(0, .015), zoom.size=1, show.area=F)
 
 fr
 
 
 # read in our data 20 reps for four toy nworks for 2 trans values
-toyData <- read.csv("toyNWdataFinal.csv",
+toyData <- read.csv("toyNWdataFinal2.csv",
                     header = FALSE,
                     stringsAsFactors = FALSE)
 
@@ -59,6 +138,10 @@ toyData$Transcendence <- as.character(toyData$Transcendence)
 toyData$Network <- factor(toyData$Network, levels = c('1', '2', '3','4'),
                           labels = c('lattice', 'star', 'chain', 'E-R'))
 
+
+toysplit <- split(randTDF, randTDF$Trans)
+
+
 # plot figures for fittness
 ft <- ggplot(toyData, aes(y = Fitness, x = Network, fill = Transcendence)) +
   geom_boxplot() +
@@ -66,17 +149,26 @@ ft <- ggplot(toyData, aes(y = Fitness, x = Network, fill = Transcendence)) +
   labs(x="Network Type", y = "prop. supercritical") +
   theme(legend.position = 'top',axis.text.x = element_text(angle = 45, hjust = 1)) + 
   scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "Trans:") + 
-  facet_zoom(ylim = c(0, .075), zoom.size=1)
+  annotate("point", x = toysplit$`2.5`$nwTypes, y =toysplit$`2.5`$mean, colour = "steelblue", size=3, shape=18) +
+  annotate('segment', x = toysplit$`2.5`$nwTypes, y = toysplit$`2.5`$mean-toysplit$`2.5`$sd, 
+           xend = toysplit$`2.5`$nwTypes, yend = toysplit$`2.5`$mean+toysplit$`2.5`$sd, size=.5, colour = "steelblue") +
+  annotate("point", x = toysplit$`2`$nwTypes-.25, y =toysplit$`2`$mean, colour = "grey", size=3, shape=18) +
+  annotate('segment', x = toysplit$`2`$nwTypes-.25, y = toysplit$`2`$mean-toysplit$`2`$sd, 
+           xend = toysplit$`2`$nwTypes-.25, yend = toysplit$`2`$mean+toysplit$`2`$sd, size=.5, colour = "grey") +
+  annotate("point", x = toysplit$`3`$nwTypes+.25, y =toysplit$`3`$mean, colour = "black", size=3, shape=18) +
+  annotate('segment', x = toysplit$`3`$nwTypes+.25, y = toysplit$`3`$mean-toysplit$`3`$sd, 
+           xend = toysplit$`3`$nwTypes+.25, yend = toysplit$`3`$mean+toysplit$`3`$sd, size=.5, colour = "black")+
+  facet_zoom(ylim = c(0, .075), zoom.size=1, show.area=F)
+  
 ft
+
+
+
+
+
 
 # plot the four plots together
 cowplot::plot_grid(ft,fr, labels = c("A", "B"), align = "v", ncol=1)
-
-
-
-
-
-
 
 
 
@@ -86,7 +178,8 @@ ct <- ggplot(toyData, aes(y = log10(Func.Calls), x = Network, fill = Transcenden
   theme_light(base_size = 20) +
   labs(x="Network Type", y = "log10(func. calls)") +
   theme(legend.position = 'top',axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "Trans:") + coord_cartesian(ylim = c(2.25,4.25))
+  scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "Trans:") + 
+  coord_cartesian(ylim = c(2.25,4.25))
 ct
 
 # plot figures for calls
@@ -95,15 +188,13 @@ cr <- ggplot(RealDataLarge, aes(y = log10(Func.Calls), x = Network.Size, fill = 
   theme_light(base_size = 20) +
   labs(x="Network Size", y = "log10(func. calls)") +
   theme(legend.position = 'top',axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "Trans:") + coord_cartesian(ylim = c(2.25,4.25))
+  scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "Trans:") + 
+  coord_cartesian(ylim = c(2.25,4.25))
 cr
 
 
 # plot the four plots together
 cowplot::plot_grid(ct,cr, labels = c("A", "B"), align = "v", ncol=2)
-
-
-
 
 
 
@@ -148,13 +239,6 @@ ggplot(chooseDF, aes(x=Nvec, y = log10(kn), group = Kvec, color=Kvec)) +
   annotate('segment', x = as.numeric(as.character(DF3$Network.Size)), 
            y = DF3$lower, xend = as.numeric(as.character(DF3$Network.Size)), 
                    yend = DF3$upper, size=1) + coord_cartesian(xlim = c(0, 1500), ylim = c(0,12)) 
-
-
-
-
-
-
-
 
 
 

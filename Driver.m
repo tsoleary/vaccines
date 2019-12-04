@@ -606,7 +606,154 @@ hold off
 
 
 
-%% (4d) repeat with simulated network via Alex's lego algorithm
-%TODO
-%TODO
-%TODO
+
+%% Test random vaccination strategies for toy NWs
+randSize = 1000;
+threshold = .5;
+transcendenceList = [2 2.5 3];
+
+%nw = toy_nets{1};
+
+global V
+V = 3; % # vaccines
+
+
+
+
+randToyMat = zeros(length(toy_nets)*length(transcendenceList), 2+randSize);
+
+counter=0; % intialize counter to index matrix
+
+
+for transcend_idx=1:length(transcendenceList)
+    transcendence=transcendenceList(transcend_idx);
+    
+        for i=1:length(toy_nets)
+
+        %get network and N
+        nw=toy_nets{i};
+        N=size(nw,1);
+
+        counter=counter+1; % counter to fill matrix
+        
+        % pick solutions 
+        random_vaccs=zeros(randSize,V);
+        for j=1:randSize
+            random_vaccs(j,:)=randsample(1:N,V);
+        end
+
+        % evaluate solutions
+        trials=SpreadingFitnessFcnCompSize(random_vaccs, nw, threshold, transcendence);
+
+        randToyMat(counter,1) = i;
+        randToyMat(counter,2) = transcendence;
+        randToyMat(counter,3:3+randSize-1) = trials;
+        
+        end        
+
+end
+
+writematrix(randToyMat, 'randToyMat.csv')
+
+
+
+
+%% Test random vaccination strategies for Real NWs (3 vac)
+randSize = 1000;
+threshold = .5;
+transcendenceList = [1 2 3];
+
+
+global V
+V = 3; % # vaccines
+
+
+randRealMat3 = zeros(length(flu_nets)*length(transcendenceList), 2+randSize);
+
+counter=0; % intialize counter to index matrix
+
+
+for transcend_idx=1:length(transcendenceList)
+    transcendence=transcendenceList(transcend_idx);
+    
+        for i=1:length(flu_nets)
+
+        %get network and N
+        nw=flu_nets{i};
+        N=size(nw,1);
+
+        counter=counter+1; % counter to fill matrix
+        
+        % pick solutions 
+        random_vaccs=zeros(randSize,V);
+        for j=1:randSize
+            random_vaccs(j,:)=randsample(1:N,V);
+        end
+
+        % evaluate solutions
+        trials=SpreadingFitnessFcnCompSize(random_vaccs, nw, threshold, transcendence);
+
+        randRealMat3(counter,1) = i;
+        randRealMat3(counter,2) = transcendence;
+        randRealMat3(counter,3:3+randSize-1) = trials;
+        
+        end        
+
+end
+
+writematrix(randRealMat3, 'randRealMat3.csv')
+
+
+%% Test random vaccination strategies for Real NWs (4 vac)
+randSize = 1000;
+threshold = .5;
+transcendenceList = [1 2 3];
+
+
+
+global V
+V = 4; % # vaccines
+
+
+
+
+randRealMat4 = zeros(length(toy_nets)*length(transcendenceList), 2+randSize);
+
+counter=0; % intialize counter to index matrix
+
+
+for transcend_idx=1:length(transcendenceList)
+    transcendence=transcendenceList(transcend_idx);
+    
+        for i=1:length(flu_nets)
+
+        %get network and N
+        nw=flu_nets{i};
+        N=size(nw,1);
+
+        counter=counter+1; % counter to fill matrix
+        
+        % pick solutions 
+        random_vaccs=zeros(randSize,V);
+        for j=1:randSize
+            random_vaccs(j,:)=randsample(1:N,V);
+        end
+
+        % evaluate solutions
+        trials=SpreadingFitnessFcnCompSize(random_vaccs, nw, threshold, transcendence);
+
+        randRealMat4(counter,1) = i;
+        randRealMat4(counter,2) = transcendence;
+        randRealMat4(counter,3:3+randSize-1) = trials;
+        
+        end        
+
+end
+
+writematrix(randRealMat4, 'randRealMat4.csv')
+
+
+
+
+
+
