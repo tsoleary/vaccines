@@ -311,4 +311,30 @@ ggplot(chooseDF, aes(x=Nvec, y = log10(kn), group = Kvec, color=Kvec)) +
                    yend = DF3$upper, size=1) + coord_cartesian(xlim = c(0, 1500), ylim = c(0,12)) 
 
 
+# growing network analysis, ga v. rand -----------------------------------------
+
+growData <- read.csv("growMat.csv",
+                     header = FALSE,
+                     stringsAsFactors = FALSE)
+
+colnames(growData) <- c("days", rep.int("Random", 1800), rep.int("GA", 10), "Max")
+
+growData <- pivot_longer(growData, 
+                         -contains("days"), 
+                         names_to = "group", 
+                         values_to = "fitness") %>%
+  filter(days != 270 & days != 450)
+
+growData$days <- as.factor(growData$days)
+
+
+gr <- ggplot(growData, aes(y = fitness, x = days, fill = group)) +
+  geom_boxplot() +
+  theme_minimal(base_size = 18) +
+  labs(x = "Days after vaccine selection", 
+       y = "Fitness") +
+  theme(legend.position = 'top',axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  scale_fill_manual(values = c('grey', 'black', 'steelblue'), name = "")
+gr
+
 
