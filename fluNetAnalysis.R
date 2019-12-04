@@ -396,37 +396,33 @@ toyDFMelt$junk <- NULL
 #####################################################################################
 # real 3 vac
 # remove data names
-randToyMat<-unname(randToyMat)
+randRealMat3<-unname(randRealMat3)
 
 # create as a data frame
-toyDFMelt <- data.frame(randToyMat)
+real3DFMelt <- data.frame(randRealMat3)
 
 # reshape the data
-toyDFMelt <- melt(data = toyDFMelt, id.vars = c("X1", "X2"), measure.vars = names(toyDFMelt[,3:1002]))
+real3DFMelt <- melt(data = real3DFMelt, id.vars = c("X1", "X2"), measure.vars = names(real3DFMelt[,3:1002]))
 
-names(toyDFMelt) <- c('Network', "Transcendence", "junk" ,'Fitness')
+names(real3DFMelt) <- c('Network', "Transcendence", "junk" ,'Fitness')
 
-toyDFMelt$Network <- factor(toyDFMelt$Network, levels = c('1', '2', '3','4'),
-                            labels = c('lattice', 'star', 'chain', 'E-R'))
-toyDFMelt$junk <- NULL
+real3DFMelt$junk <- NULL
 
 
 #####################################################################################
 # real 4 vac
 # remove data names
-randToyMat<-unname(randToyMat)
+randRealMat4<-unname(randRealMat4)
 
 # create as a data frame
-toyDFMelt <- data.frame(randToyMat)
+real4DFMelt <- data.frame(randRealMat4)
 
 # reshape the data
-toyDFMelt <- melt(data = toyDFMelt, id.vars = c("X1", "X2"), measure.vars = names(toyDFMelt[,3:1002]))
+real4DFMelt <- melt(data = real4DFMelt, id.vars = c("X1", "X2"), measure.vars = names(real4DFMelt[,3:1002]))
 
-names(toyDFMelt) <- c('Network', "Transcendence", "junk" ,'Fitness')
+names(real4DFMelt) <- c('Network', "Transcendence", "junk" ,'Fitness')
 
-toyDFMelt$Network <- factor(toyDFMelt$Network, levels = c('1', '2', '3','4'),
-                            labels = c('lattice', 'star', 'chain', 'E-R'))
-toyDFMelt$junk <- NULL
+real4DFMelt$junk <- NULL
 
 
 
