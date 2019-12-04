@@ -814,6 +814,76 @@ writematrix(randRealMat4, 'randRealMat4.csv')
 
 
 
+%% (3b) run GA on flu nets to compare to brute force
 
+num_GA_runs=20;
+P = 300; % GA population size
+nGen=50;
+global V
+V = 3; % # vaccines
+mutProb = 1/V; % probabilty of mutation
+if V==1
+mutProb=0.5;
+end
+threshold = .5;
+
+
+
+% set options for ga toolbox for bitstring
+vaccineOpts = gaoptimset(...
+'PopulationType', 'doubleVector', ...
+'PopulationSize',P,...
+'CrossoverFcn', @crossoversinglepoint, ...
+'CrossoverFraction', 0.5, ...
+'SelectionFcn',{@selectiontournament,2}, ... {@selectionstochunif}
+'Vectorized','on',...
+'Generations', nGen, ...
+'FitnessLimit', 0, ...
+'MutationFcn', {@randomResetMutation, mutProb},...
+'PlotFcn',{@gaplotbestf},...
+'OutputFcn',@outputFcn);
+
+
+counter = 0;
+transList = [1];
+RealMat = zeros((num_GA_runs * length(transList) * length(flu_nets)), 4);
+
+for transcendence=1:length(transList) % since we don't know what it is, try a few
+    for i=6:9 %for flu networks of size ~20 up to ~1000
+
+        flu_net=flu_nets{i};
+        N = size(flu_net,1);
+        population=zeros(P,V);
+        for j=1:P
+            population(j,:)=randsample(1:N,V);
+        end
+
+        vaccineOpts.InitialPopulation=population;
+
+        % RUN GA X TIMES
+        for run=1:num_GA_runs
+            
+            counter = counter + 1;
+            
+            % run GA
+            [x, fval, exitFlag, Output] = ga(@(y) SpreadingFitnessFcnCompSize(y, flu_net, threshold, transcendence), V, vaccineOpts);
+            record = outputFcn();
+            fcncalls_to_best_solution = P * (record(end).LastImprovement + 1);
+            clear outputFcn
+            %Visualizer(x, flu_net, threshold, transcendence)
+            RealMat(counter,1) = fval;
+            RealMat(counter,2) = fcncalls_to_best_solution;%Output.funccount;
+            
+            RealMat(counter,3) = transList(transcendence);
+            RealMat(counter,4) = N;
+        end
+
+    end
+end
+
+%Done: Extract data for X number of runs of the above 
+% RealMat matrix first col fitness the seoncond is number of func calls
+% third is trans val
+writematrix(RealMat, 'brutForceGAfig.csv')
 
 
