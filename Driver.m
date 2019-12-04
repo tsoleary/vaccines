@@ -527,10 +527,10 @@ clearvars filename delimiter startRow formatSpec fileID dataArray ans;
 nodeTimes=temporalNodes(:,2);
 [minT maxT]=bounds(nodeTimes);
 
-increment=50; %# days between evaluations.
+increment=90; %# days between evaluations.
 ns=[];
 
-days=sort([4772 minT:increment:maxT]);%from day of first observed strain to last
+days=sort([4772:increment:5222]);%from day of first observed strain to last
 x=[]; %initialize solution
 fvals_ga=[]; %initialize fitnesses
 fvals_rand=[]; %initialize fitnesses
@@ -545,6 +545,7 @@ G_full=G_full.addedge(source,target);
 G_full=full(adjacency(G_full));
 ct=1;
 population=[];
+
 for day=days 
     if day>=4772 %if network is 1/2 full size by # nodes
         rng(4)
@@ -611,8 +612,8 @@ for day=days
             for j=1:test_number
                 randvacc(j,:)=randsample(1:N,V);
             end
-            best_fitness=ones(1,round(test_number*.05));
-            best_solutions=zeros(round(test_number*.05),V);
+            best_fitness=ones(1,round(test_number));
+            best_solutions=zeros(round(test_number),V);
             for j=1:test_number
                 curr_vacc=randvacc(j,:);
                 curr_fit=SpreadingFitnessFcnCompSizeGrow(curr_vacc,G,G_full,threshold,transcendence);
@@ -658,6 +659,10 @@ plot(plot_days,fvals_rand,'-','linewidth',10,'color',[.5 .5 .5 .2])
 plot(plot_days,fvals_ga,'-','linewidth',2)
 plot(plot_days,novacc,':','linewidth',3)
 hold off 
+
+growMat=[transpose(plot_days) fvals_rand fvals_ga transpose(novacc)];
+
+csvwrite('growMat.csv',growMat)
 
 
 
