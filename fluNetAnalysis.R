@@ -231,7 +231,7 @@ ct <- ggplot(toyData, aes(y = log10(Func.Calls), x = Network, fill = Transcenden
   geom_boxplot() +
   theme_light(base_size = 20) +
   labs(x=NULL, y = "log10(func. calls)") +
-  theme(legend.position = c(.8,.8),axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  theme(legend.position = c(.74,.74),axis.text.x = element_text(angle = 45, hjust = 1)) + 
   scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "Trans:") + 
   coord_cartesian(ylim = c(2.25,6))
 ct
@@ -241,7 +241,7 @@ cr <- ggplot(RealDataLarge, aes(y = log10(Func.Calls), x = Network.Size, fill = 
   geom_boxplot() +
   theme_light(base_size = 20) +
   labs(x=NULL, y = "log10(func. calls)") +
-  theme(legend.position = c(.8,.8),axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  theme(legend.position = c(.74,.74),axis.text.x = element_text(angle = 45, hjust = 1)) + 
   scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "Trans:") + 
   coord_cartesian(ylim = c(2.25,6))
 cr
@@ -253,7 +253,7 @@ cr3 <- ggplot(RealData3Vac, aes(y = log10(Func.Calls), x = Network.Size, fill = 
   geom_boxplot() +
   theme_light(base_size = 20) +
   labs(x=NULL, y = "log10(func. calls)") +
-  theme(legend.position = c(.8,.8),axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  theme(legend.position = c(.74,.74),axis.text.x = element_text(angle = 45, hjust = 1)) + 
   scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "Trans:") +
   coord_cartesian(ylim = c(2.25,6))
 cr3
