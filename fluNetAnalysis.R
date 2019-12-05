@@ -180,7 +180,7 @@ ft
 
 
 
-
+173503885555
 
 
 
@@ -297,6 +297,7 @@ chooseDF <- data.frame(kn, Nvec, as.character(Kvec))
 DF3 <- ddply(RealData, c("Network.Size"), summarise,
              n = length(Func.Calls),
              mean = log10(mean(Func.Calls, na.rm=TRUE)),
+             meanNoLog = mean(Func.Calls, na.rm=TRUE),
              sd = log10(sd(Func.Calls, na.rm=TRUE)),
              se = sd / sqrt(n),
              upper = mean+se,
