@@ -2,7 +2,8 @@
 # P. Alexander Burnham
 # November 25, 2019
 
-
+###################################
+# load packages
 library(dplyr)
 library(ggplot2)
 library(scales)
@@ -12,6 +13,7 @@ library(plyr)
 library(ggforce)
 library(matrixStats)
 library(tidyr)
+###################################
 
 
 
@@ -21,6 +23,7 @@ library(tidyr)
 randToyMat <- read.csv("randToyMat.csv",
                        header = FALSE,
                        stringsAsFactors = FALSE)
+
 # make a matrix
 randToyMat <- as.matrix(randToyMat)
 
@@ -54,6 +57,7 @@ randRDF3 <- data.frame(randRealMat3[,c(1:2)],
 # add names to dataframe
 names(randRDF3) <- c('nwTypes', 'Trans', "mean", 'sd')
 
+# remove data for smallest networks
 randRDF3<-randRDF3[!(randRDF3$nwTypes %in% c(7, 8, 9)),]
 randRDF3$nwTypes <- rep(6:1,3)
 ##############################################################################################
@@ -79,6 +83,7 @@ randRDF4 <- data.frame(randRealMat4[,c(1:2)],
 # add names to dataframe
 names(randRDF4) <- c('nwTypes', 'Trans', "mean", 'sd')
 
+# remove data for smallest networks
 randRDF4<-randRDF4[!(randRDF4$nwTypes %in% c(7, 8, 9)),]
 randRDF4$nwTypes <- rep(6:1,3)
 ##############################################################################################
@@ -86,8 +91,8 @@ randRDF4$nwTypes <- rep(6:1,3)
 
 
 
-
-# read in our data for 20 reps of 3 trans values for 9 different nws
+##############################################################################################
+# read in our data for 20 reps of 3 trans values for 9 different nws for 4 vaccine real nets
 RealData <- read.csv("realNWdata4vac.csv",
                      header = FALSE,
                      stringsAsFactors = FALSE)
@@ -99,10 +104,13 @@ names(RealData) <- c('Fitness', 'Func.Calls', "Transcendence", 'Network.Size')
 RealData$Transcendence <- as.character(RealData$Transcendence*2)
 RealData$Network.Size <- as.factor(RealData$Network.Size)
 
-RealData$Log_fitness <- -log10(RealData$Fitness + 10^-5) # log10(RealData$Fitness+1)
+# remove small nets
 RealDataLarge<-RealData[!(RealData$Network.Size %in% c(20, 43, 52)),]
 
+# split the data frame for trans values
 split4<-split(randRDF4, randRDF4$Trans)
+##############################################################################################
+
 
 # plot figures for fittness
 fr <- ggplot(RealDataLarge, aes(y = Fitness, x = Network.Size, fill = Transcendence)) +
@@ -120,11 +128,12 @@ fr <- ggplot(RealDataLarge, aes(y = Fitness, x = Network.Size, fill = Transcende
            xend = split4$`1`$nwTypes-.25, yend = split4$`1`$mean+split4$`1`$sd, size=.5, colour = "grey") +
   annotate("point", x = split4$`3`$nwTypes+.25, y =split4$`3`$mean, colour = "black", size=3, shape=18) +
   annotate('segment', x = split4$`3`$nwTypes+.25, y = split4$`3`$mean-split4$`3`$sd,
-           xend = split4$`3`$nwTypes+.25, yend = split4$`3`$mean+split4$`3`$sd, size=.5, colour = "black") +facet_zoom(ylim = c(0, .015), zoom.size=2, show.area=F)
+           xend = split4$`3`$nwTypes+.25, yend = split4$`3`$mean+split4$`3`$sd, size=.5, colour = "black") +
+  facet_zoom(ylim = c(0, .015), zoom.size=2, show.area=F)
 
-fr
 
 
+##############################################################################################
 # read in our data 20 reps for four toy nworks for 2 trans values
 toyData <- read.csv("toyNWdataFinal2.csv",
                     header = FALSE,
@@ -141,9 +150,9 @@ toyData$Transcendence <- as.character(toyData$Transcendence)
 toyData$Network <- factor(toyData$Network, levels = c('1', '2', '3','4'),
                           labels = c('lattice', 'star', 'chain', 'E-R'))
 
-
+# splot toy data
 toysplit <- split(randTDF, randTDF$Trans)
-
+##############################################################################################
 
 # plot figures for fittness
 ft <- ggplot(toyData, aes(y = Fitness, x = Network, fill = Transcendence)) +
@@ -164,28 +173,10 @@ ft <- ggplot(toyData, aes(y = Fitness, x = Network, fill = Transcendence)) +
            xend = toysplit$`3`$nwTypes+.25, yend = toysplit$`3`$mean+toysplit$`3`$sd, size=.5, colour = "black")+
   facet_zoom(ylim = c(0, .075), zoom.size=2, show.area=F)
 
-ft
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-173503885555
-
-
-
-
-# read in our data for 20 reps of 3 trans values for 9 different nws
+##############################################################################################
+# read in our data for 20 reps of 3 trans values for 9 different nws for 3 vac real nets
 RealData3Vac <- read.csv("realNWdata3vac.csv",
                          header = FALSE,
                          stringsAsFactors = FALSE)
@@ -197,9 +188,10 @@ names(RealData3Vac) <- c('Fitness', 'Func.Calls', "Transcendence", 'Network.Size
 RealData3Vac$Transcendence <- as.character(RealData3Vac$Transcendence)
 RealData3Vac$Network.Size <- as.factor(RealData3Vac$Network.Size)
 
-
-
+# split the network for trans values
 split3<-split(randRDF3, randRDF3$Trans)
+##############################################################################################
+
 
 # plot figures for fittness
 fr3 <- ggplot(RealData3Vac, aes(y = Fitness, x = Network.Size, fill = Transcendence)) +
@@ -217,15 +209,8 @@ fr3 <- ggplot(RealData3Vac, aes(y = Fitness, x = Network.Size, fill = Transcende
            xend = split3$`1`$nwTypes-.25, yend = split3$`1`$mean+split3$`1`$sd, size=.5, colour = "grey") +
   annotate("point", x = split3$`3`$nwTypes+.25, y =split3$`3`$mean, colour = "black", size=3, shape=18) +
   annotate('segment', x = split3$`3`$nwTypes+.25, y = split3$`3`$mean-split3$`3`$sd,
-           xend = split3$`3`$nwTypes+.25, yend = split3$`3`$mean+split3$`3`$sd, size=.5, colour = "black") +facet_zoom(ylim = c(0, .0083), zoom.size=2, show.area=F)
-
-fr3
-
-
-
-
-
-
+           xend = split3$`3`$nwTypes+.25, yend = split3$`3`$mean+split3$`3`$sd, size=.5, colour = "black") +
+  facet_zoom(ylim = c(0, .0083), zoom.size=2, show.area=F)
 
 
 
@@ -239,7 +224,7 @@ ct <- ggplot(toyData, aes(y = log10(Func.Calls), x = Network, fill = Transcenden
         panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "Trans:") +
   coord_cartesian(ylim = c(2.25,6))
-ct
+
 
 # plot figures for calls
 cr <- ggplot(RealDataLarge, aes(y = log10(Func.Calls), x = Network.Size, fill = Transcendence)) +
@@ -250,8 +235,6 @@ cr <- ggplot(RealDataLarge, aes(y = log10(Func.Calls), x = Network.Size, fill = 
         panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "Trans:") +
   coord_cartesian(ylim = c(2.25,6))
-cr
-
 
 
 # plot figures for calls
@@ -263,8 +246,6 @@ cr3 <- ggplot(RealData3Vac, aes(y = log10(Func.Calls), x = Network.Size, fill = 
         panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   scale_fill_manual(values = c('grey', 'steelblue', 'black'), name = "Trans:") +
   coord_cartesian(ylim = c(2.25,6))
-cr3
-
 
 
 
